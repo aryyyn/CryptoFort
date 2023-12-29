@@ -1,35 +1,51 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QMessageBox,QLabel
-from PyQt6.QtGui import QIcon  #will be able to read image files
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QLineEdit, QVBoxLayout, QWidget, QLabel, QHBoxLayout
+from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
-from handler.joke import joke
+import sys
 
-
-app = QApplication([])
+app = QApplication(sys.argv)
 window = QMainWindow() 
 
-window.setMinimumSize(750,550)
+window.setMinimumSize(750, 550)
 window.setWindowTitle("CryptoFort | Register")
 icon = QIcon("logo/logo.png")
-window.setWindowIcon(icon) #settings the minimum width and height
+window.setWindowIcon(icon)
+window.setStyleSheet("background-color: white;")
 
-#adding widgets
 central_widget = QWidget()
 window.setCentralWidget(central_widget)
 
-layout = QVBoxLayout()
-central_widget.setLayout(layout)
+layout = QVBoxLayout(central_widget)
+layout.setContentsMargins(100, 100, 100, 100)
+layout.setSpacing(5)  # Adjust the spacing between widgets
 
+RegisterTitle = QLabel("CryptoFort || Register")
+registeremaillabel = QLabel("Email: ")
+registerpasslabel = QLabel("Password: ")
 
-label = QLabel("The Register page", alignment=Qt.AlignmentFlag.AlignCenter)
-layout.addWidget(label)
+rsubmit = QPushButton("Joke")
+rsubmit.setFixedSize(100, 50)
 
-rsubmit = QPushButton("Register")
-rsubmit.setFixedSize(50,50)
-layout.addWidget(rsubmit)
+rrsubmit = QPushButton("Register")
+rrsubmit.setFixedSize(100, 50)
 
-rsubmit.clicked.connect(joke)
+registeremail = QLineEdit()
+registeremail.setFixedSize(300, 20)
+registeremail.setEchoMode(QLineEdit.EchoMode.Normal)
 
+registerpassword = QLineEdit()
+registerpassword.setFixedSize(300, 20)
+registerpassword.setEchoMode(QLineEdit.EchoMode.Password)
 
+email_layout = QHBoxLayout()
+email_layout.addWidget(registeremaillabel)
+email_layout.addWidget(registeremail)
 
-window.show() #for the window to be shown
-app.exec()
+layout.addWidget(RegisterTitle, alignment=Qt.AlignmentFlag.AlignCenter)
+layout.addLayout(email_layout)
+layout.addWidget(registerpasslabel, alignment=Qt.AlignmentFlag.AlignCenter)
+layout.addWidget(registerpassword, alignment=Qt.AlignmentFlag.AlignCenter)
+layout.addWidget(rrsubmit, alignment=Qt.AlignmentFlag.AlignCenter)
+
+window.show()
+sys.exit(app.exec())
