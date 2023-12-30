@@ -137,6 +137,7 @@ layout.addLayout(promptlogin_layout)
 rrsubmit.clicked.connect(joke)
 showregisterpassword.clicked.connect(lambda: togglePassword(registerpassword))
 showconfirmregisterpassword.clicked.connect(lambda: togglePassword(repassword))
+promptloginbtn.clicked.connect(joke)
 
 window.show()
 sys.exit(app.exec())
