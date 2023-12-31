@@ -1,0 +1,2 @@
+def forgetPassword():
+    print("working")

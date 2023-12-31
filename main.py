@@ -14,6 +14,7 @@ import sys
 from handler.Register_logic import Register_Logic
 from handler.showPassword import togglePassword
 from handler.login_logic import loginLogic
+from handler.forget_password import forgetPassword
 
 
 
@@ -211,6 +212,9 @@ class LoginWindow(QMainWindow):
         email_layout.addWidget(loginlabel)
         email_layout.addWidget(self.loginInput)
 
+        ResetPassword = QPushButton("Forgot Password?")
+        ResetPassword.setFixedSize(50,25)
+
         password_layout = QHBoxLayout()
         passwordlabel = QLabel("Password: ")
         self.PasswordInput = QLineEdit()
@@ -223,9 +227,15 @@ class LoginWindow(QMainWindow):
         password_layout.addWidget(passwordlabel)
         password_layout.addWidget(self.PasswordInput)
         password_layout.addWidget(self.ShowLoginPass)
+        password_layout.addWidget(ResetPassword)
+
 
         rrsubmit = QPushButton("Login")
         rrsubmit.setFixedSize(70, 50)
+
+
+        
+        
 
         promptRegister_layout = QHBoxLayout()
         promptRegister = QLabel("Not A Member?")
@@ -237,6 +247,9 @@ class LoginWindow(QMainWindow):
         promptRegister_layout.addSpacing(2)
         promptRegister_layout.addWidget(self.promptRegisterbtn, alignment=Qt.AlignmentFlag.AlignLeft)
 
+    
+        
+    
         layout.addWidget(LoginTitle)
         layout.addLayout(email_layout)
         layout.addLayout(password_layout)
@@ -246,6 +259,7 @@ class LoginWindow(QMainWindow):
         self.ShowLoginPass.clicked.connect(lambda: togglePassword(self.PasswordInput))
         rrsubmit.clicked.connect(lambda: loginLogic(self.loginInput, self.PasswordInput))
         self.promptRegisterbtn.clicked.connect(self.showRegister)
+        ResetPassword.clicked.connect(forgetPassword)
         self.show()
  
     def showRegister(self):
