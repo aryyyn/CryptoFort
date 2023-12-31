@@ -13,8 +13,8 @@ from PyQt6.QtCore import Qt
 import sys
 from handler.Register_logic import Register_Logic
 from handler.showPassword import togglePassword
-from handler.login_window import loginWindowLogic
 from handler.login_logic import loginLogic
+
 
 
 class RegisterWindow(QMainWindow):
@@ -138,15 +138,11 @@ class RegisterWindow(QMainWindow):
 
         self.show()
 
-    def joke(self):
-        joke()
-
     def openLogin(self):
         self.hide()
         self.LoginWindow = LoginWindow()
         self.LoginWindow.show()
         
-
 class LoginWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -206,7 +202,6 @@ class LoginWindow(QMainWindow):
         LoginTitle = QLabel("CryptoFort || Login")
         LoginTitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-
         email_layout = QHBoxLayout()
         loginlabel = QLabel("Email: ")
         self.loginInput = QLineEdit()
@@ -232,7 +227,6 @@ class LoginWindow(QMainWindow):
         rrsubmit = QPushButton("Login")
         rrsubmit.setFixedSize(70, 50)
 
-
         promptRegister_layout = QHBoxLayout()
         promptRegister = QLabel("Not A Member?")
         promptRegister.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -250,28 +244,20 @@ class LoginWindow(QMainWindow):
         layout.addLayout(promptRegister_layout)
 
         self.ShowLoginPass.clicked.connect(lambda: togglePassword(self.PasswordInput))
-        rrsubmit.clicked.connect(loginLogic)
+        rrsubmit.clicked.connect(lambda: loginLogic(self.loginInput, self.PasswordInput))
         self.promptRegisterbtn.clicked.connect(self.showRegister)
         self.show()
-
-     
+ 
     def showRegister(self):
         self.hide()
         self.RW = RegisterWindow()
         self.RW.show()
         
-
-       
-
-       
-
-
 def main():
     app = QApplication(sys.argv)
     window = RegisterWindow()
     
     sys.exit(app.exec())
-
 
 if __name__ == "__main__":
     main()
