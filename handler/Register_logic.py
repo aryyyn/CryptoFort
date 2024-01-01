@@ -11,7 +11,7 @@ def get_ip_address():
 
 def registerLogic(eemail,epassword,erepassword):
     try:
-        email = eemail.text()
+        email = eemail.text().lower()
         password = epassword.text()
         repassword = erepassword.text()
 
@@ -29,7 +29,7 @@ def registerLogic(eemail,epassword,erepassword):
         IP = get_ip_address() 
         LastLoggedInIP = IP
         user_data = {
-        "email": email,
+        "email": email.lower(),
         "password": password,
         "Registration_IP": IP,
         "Last_LoggedIn_IP": LastLoggedInIP,

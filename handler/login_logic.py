@@ -4,7 +4,7 @@ import time
 import pymongo
 
 def loginLogic(eemail, epassword):
-    email = eemail.text()
+    email = eemail.text().lower()
     password = epassword.text()
 
     client = pymongo.MongoClient("mongodb://localhost:27017/")  
