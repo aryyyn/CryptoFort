@@ -1,2 +1,2 @@
 def forgetPassword():
-    print("working")
+    print("Its working")
