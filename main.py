@@ -16,6 +16,7 @@ from handler.Register_logic import registerLogic
 from handler.showPassword import togglePassword
 from handler.login_logic import loginLogic
 from handler.forget_password import forgetPassword
+from ExtraHandler.account_info import AccountInfo
 
 class PromptDialog(QDialog):
     def __init__(self, title, description, parent=None):
@@ -164,11 +165,12 @@ class RegisterWindow(QMainWindow):
         self.LoginWindow.show()
 
 class ModuleWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, Email):
         super().__init__()
-        self.init_ui()
+        self.init_ui(Email)
 
-    def init_ui(self):
+    def init_ui(self, Email):
+        
         self.setFixedSize(750, 550)
         self.setWindowTitle("CryptoFort | ModuleMenu")
         icon = QIcon("logo/logo.png")
@@ -216,9 +218,57 @@ class ModuleWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(100, 100, 100, 100)
-        layout.setSpacing(5)
+        self.setGeometry(100, 100, 400, 300)
+        layout.setSpacing(10)
+
+        HeaderLayout = QHBoxLayout()
+        WelcomeMessage = QLabel(f"CryptoFort || Modules \n Welcome back,  {Email.text()}")
+
+        AccountInfo = QPushButton("Account Info")
+        UpdateAccount = QPushButton("Update Account")
+
+        HeaderLayout.addWidget(AccountInfo, alignment=Qt.AlignmentFlag.AlignLeft)
+        HeaderLayout.addWidget(WelcomeMessage, alignment=Qt.AlignmentFlag.AlignCenter)
+        HeaderLayout.addWidget(UpdateAccount, alignment=Qt.AlignmentFlag.AlignRight)
+
+       
+        
+        Module1 = QPushButton("Encrypto")
+        Module1.setFixedSize(400,70)
+        Module2 = QPushButton("FManager")
+        Module2.setFixedSize(400,70)
+        Module3 = QPushButton("IPC")
+        Module3.setFixedSize(400,70)
+
+        widget1 = QWidget()
+        widget1.setFixedSize(300, 100)
+        widget1.setLayout(QVBoxLayout())
+        widget1.layout().addWidget(Module1)
+
+        widget2 = QWidget()
+        widget2.setFixedSize(300, 100)
+        widget2.setLayout(QVBoxLayout())
+        widget2.layout().addWidget(Module2)
+
+        widget3 = QWidget()
+        widget3.setFixedSize(300, 100)
+        widget3.setLayout(QVBoxLayout())
+        widget3.layout().addWidget(Module3)
+
+
+        layout.addLayout(HeaderLayout)
+        layout.addWidget(widget1, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(widget2, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(widget3, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        AccountInfo.clicked.connect(lambda: self.display_account_info_methods(Email))
         self.show()
+
+    def display_account_info_methods(self, Email):
+        print("working")
+        self.AI = AccountInfo(Email)
+        self.AI.show()
+        
         
 class LoginWindow(QMainWindow):
     def __init__(self):
@@ -353,8 +403,9 @@ class LoginWindow(QMainWindow):
            WrongPass.exec()
        elif(LoginResult == "Correct Password"):
            self.hide()
-           self.MM = ModuleWindow()
+           self.MM = ModuleWindow(self.loginInput)
            self.MM.show() 
+           
            
        
 

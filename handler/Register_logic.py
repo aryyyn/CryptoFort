@@ -3,6 +3,17 @@ from PyQt6.QtWidgets import QMessageBox, QLineEdit, QDialog,QDialogButtonBox,QVB
 import socket
 import requests
 import random
+from validate_email_address import validate_email
+from datetime import datetime
+
+def email_validator(email):
+    is_valid = validate_email(email)
+    return is_valid
+
+def getDateAndTime():
+    DateAndTime = datetime.now()
+    return DateAndTime
+
 
 def get_ip_address():
     IP = requests.get("https://ipv4.icanhazip.com").text.strip()
@@ -14,6 +25,11 @@ def registerLogic(eemail,epassword,erepassword):
         email = eemail.text().lower()
         password = epassword.text()
         repassword = erepassword.text()
+
+        if (email_validator(email)) == True:
+            print("Valid Email")
+        else:
+            return "Invalid Email"
 
         if (password!=repassword):
             PasswordMismatch = QMessageBox()
@@ -34,6 +50,7 @@ def registerLogic(eemail,epassword,erepassword):
         "Registration_IP": IP,
         "Last_LoggedIn_IP": LastLoggedInIP,
         "Secret_Code":123456789123456789,
+        "Date&Time_OF_Registration": getDateAndTime()
 
         }
 
