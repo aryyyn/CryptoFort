@@ -34,7 +34,7 @@ def registerLogic(eemail,epassword,erepassword):
         if (password!=repassword):
             PasswordMismatch = QMessageBox()
             PasswordMismatch.setWindowTitle("Error")
-            PasswordMismatch.setText("Password dont match")
+            PasswordMismatch.setText("Passwords dont match")
             button = PasswordMismatch.exec()
             return "Password Mismatch"
         
