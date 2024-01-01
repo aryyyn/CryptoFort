@@ -1,23 +1,32 @@
 import requests
 from PyQt6.QtWidgets import QMessageBox, QLineEdit, QDialog,QDialogButtonBox,QVBoxLayout,QLabel
 import time
+import pymongo
 
+def loginLogic(eemail, epassword):
+    email = eemail.text()
+    password = epassword.text()
 
-def loginLogic(email,password):
-    if email.text() == "admin":
-        if password.text() == "admin":
-            dlg = QMessageBox()
-            dlg.setWindowTitle("Success")
-            dlg.setText("Logging in!")
-            dlg.setIcon(QMessageBox.Icon.Information)
-            dlg.hide()
-            button = dlg.exec()
-           
+    client = pymongo.MongoClient("mongodb://localhost:27017/")  
+    db = client["CryptoFort"] 
+    collection = db["User_Details"]
+
+    count = collection.count_documents({"email": email})
+
+    if count == 0:
+        return "No Email Found"
     else:
-        dlg = QMessageBox()
-        dlg.setWindowTitle("Error")
-        dlg.setText("Wrong Email Or Pass")
-        button = dlg.exec()
+        results = collection.find({"email": email})
+        for data in results:
+            if data["password"] == password:
+                return "Correct Password"
+            else:
+                return "InCorrect Password"
+
+
+
+
+
        
 
 
