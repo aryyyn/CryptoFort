@@ -21,8 +21,8 @@ class AccountInfo(QMainWindow):
 
 
     def init_ui(self,Email):
-        self.setFixedSize(400, 400)
-        self.setWindowTitle("CryptoFort | AccountInfo")
+        self.setBaseSize(400, 400)
+        self.setWindowTitle("AccountInfo")
         icon = QIcon("logo/logo.png")
         self.setWindowIcon(icon)
 
@@ -34,7 +34,7 @@ class AccountInfo(QMainWindow):
 
                            
             Qlabel {
-                           font-size: 3px
+            font-size: 3px
             }
 
 
@@ -44,8 +44,6 @@ class AccountInfo(QMainWindow):
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(100, 100, 100, 100)
-        layout.setSpacing(5)
 
         client = pymongo.MongoClient("mongodb://localhost:27017/")  
         db = client["CryptoFort"] 
@@ -54,22 +52,16 @@ class AccountInfo(QMainWindow):
         EmailText = "Email: " + Email.text()
 
         user_info = collection.find_one({"email": Email.text()})
-        print(user_info["password"])
-
         
-        email = QLabel(EmailText)
-        layout.addWidget(email)
+        layout.addWidget(QLabel(EmailText))
 
-        RegistrationIPText = "Registration IP: " + (user_info.get("Registration_IP") or "N/A")
+        RegistrationIPText = "Registration IP: " + (user_info.get("Registration_IP"))
         layout.addWidget(QLabel(RegistrationIPText))
 
-        DateTime = user_info.get("Date&Time_OF_Registration")
-        if DateTime:
-            date_time_string = DateTime.strftime("%Y-%m-%d %H:%M:%S")
-            DateText = "Registration Date&Time: " + date_time_string
-            layout.addWidget(QLabel(DateText))
-        else:
-            layout.addWidget(QLabel("Registration Date&Time: N/A"))
+
+        date_time_string = user_info.get("Date&Time_OF_Registration").strftime("%Y-%m-%d %H:%M:%S")
+        DateText = "Registration Date&Time: " + date_time_string
+        layout.addWidget(QLabel(DateText), alignment=Qt.AlignmentFlag.AlignLeft)
 
  
 
