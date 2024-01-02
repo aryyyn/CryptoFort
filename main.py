@@ -17,6 +17,7 @@ from handler.showPassword import togglePassword
 from handler.login_logic import loginLogic
 from handler.forget_password import forgetPassword
 from ExtraHandler.account_info import AccountInfo
+from ExtraHandler.update_account import UpdateAccount
 
 class PromptDialog(QDialog):
     def __init__(self, title, description, parent=None):
@@ -157,7 +158,7 @@ class RegisterWindow(QMainWindow):
 
     def regiserGuide(self):
        RegisterText =  registerLogic(self.registeremail, self.registerpassword, self.repassword)
-       print(RegisterText)
+
 
     def openLogin(self):
         self.hide()
@@ -165,11 +166,11 @@ class RegisterWindow(QMainWindow):
         self.LoginWindow.show()
 
 class ModuleWindow(QMainWindow):
-    def __init__(self, Email):
+    def __init__(self, Email, Password):
         super().__init__()
-        self.init_ui(Email)
+        self.init_ui(Email,Password)
 
-    def init_ui(self, Email):
+    def init_ui(self, Email,Password):
         
         self.setFixedSize(750, 550)
         self.setWindowTitle("CryptoFort | ModuleMenu")
@@ -222,13 +223,16 @@ class ModuleWindow(QMainWindow):
         layout.setSpacing(10)
 
         HeaderLayout = QHBoxLayout()
-        WelcomeMessage = QLabel(f"CryptoFort || Modules \n Welcome back,  {Email.text()}")
+        WelcomeUserName = Email.text().split('@')[0]
+        TitleMessage = QLabel(f"CryptoFort || Modules \n Welcome back,  {WelcomeUserName}")
+    
+
 
         AccountInfo = QPushButton("Account Info")
         UpdateAccount = QPushButton("Update Account")
 
         HeaderLayout.addWidget(AccountInfo, alignment=Qt.AlignmentFlag.AlignLeft)
-        HeaderLayout.addWidget(WelcomeMessage, alignment=Qt.AlignmentFlag.AlignCenter)
+        HeaderLayout.addWidget(TitleMessage, alignment=Qt.AlignmentFlag.AlignCenter)
         HeaderLayout.addWidget(UpdateAccount, alignment=Qt.AlignmentFlag.AlignRight)
 
        
@@ -262,12 +266,17 @@ class ModuleWindow(QMainWindow):
         layout.addWidget(widget3, alignment=Qt.AlignmentFlag.AlignCenter)
 
         AccountInfo.clicked.connect(lambda: self.display_account_info_methods(Email))
+        UpdateAccount.clicked.connect(lambda: self.display_update_account_methods(Email))
         self.show()
 
     def display_account_info_methods(self, Email):
-        print("working")
         self.AI = AccountInfo(Email)
         self.AI.show()
+
+    def display_update_account_methods(self, Email):
+        self.UA = UpdateAccount(Email)
+        self.UA.show()
+
         
         
 class LoginWindow(QMainWindow):
@@ -403,7 +412,7 @@ class LoginWindow(QMainWindow):
            WrongPass.exec()
        elif(LoginResult == "Correct Password"):
            self.hide()
-           self.MM = ModuleWindow(self.loginInput)
+           self.MM = ModuleWindow(self.loginInput, self.PasswordInput)
            self.MM.show() 
            
            
@@ -412,7 +421,7 @@ class LoginWindow(QMainWindow):
   
 def main():
     app = QApplication(sys.argv)
-    window = RegisterWindow()
+    window = LoginWindow()
     
     sys.exit(app.exec())
 
