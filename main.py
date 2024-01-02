@@ -18,6 +18,7 @@ from handler.login_logic import loginLogic
 from handler.forget_password import forgetPassword
 from ExtraHandler.account_info import AccountInfo
 from ExtraHandler.update_account import UpdateAccount
+from Modules.Encrypto.Ecnrypto_ui import EncryptoWindow
 
 class PromptDialog(QDialog):
     def __init__(self, title, description, parent=None):
@@ -267,8 +268,14 @@ class ModuleWindow(QMainWindow):
 
         AccountInfo.clicked.connect(lambda: self.display_account_info_methods(Email))
         UpdateAccount.clicked.connect(lambda: self.display_update_account_methods(Email))
+
+        Module1.clicked.connect(lambda: self.display_Encrypto_Module(Email.text()))
         self.show()
 
+    def display_Encrypto_Module(self, Email):
+        self.Encrypto = EncryptoWindow(Email)
+        self.Encrypto.show()
+        
     def display_account_info_methods(self, Email):
         self.AI = AccountInfo(Email)
         self.AI.show()

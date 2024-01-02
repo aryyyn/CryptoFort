@@ -113,7 +113,6 @@ class UpdateAccount(QMainWindow):
 
         if (Password == CurrentPassInput):
             result = collection.delete_one({"email": Email})
-            print(result.deleted_count)
 
             if (result.deleted_count > 0):
                 Success = QMessageBox()
