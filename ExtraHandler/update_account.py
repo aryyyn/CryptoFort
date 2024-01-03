@@ -68,10 +68,11 @@ class UpdateAccount(QMainWindow):
 
         UpdatePassword = QPushButton("Update Password")
         DeleteAccount = QPushButton("Delete Account")
-
+        UpdatePassword.setFixedSize(50,50)
+        DeleteAccount.setFixedSize(50,50)
         
-        layout.addWidget(UpdatePassword)
-        layout.addWidget(DeleteAccount)
+        layout.addWidget(UpdatePassword, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(DeleteAccount, alignment=Qt.AlignmentFlag.AlignCenter)
         UpdatePassword.clicked.connect(lambda: self.changePasswordUI(Email))
         DeleteAccount.clicked.connect(lambda: self.deleteAccountUI(Email))
         self.show()

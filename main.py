@@ -18,7 +18,9 @@ from handler.login_logic import loginLogic
 from handler.forget_password import forgetPassword
 from ExtraHandler.account_info import AccountInfo
 from ExtraHandler.update_account import UpdateAccount
-from Modules.Encrypto.Ecnrypto_ui import EncryptoWindow
+from Modules.Encrypto import EncryptoWindow
+from Modules.FManager import FManagerWindow
+from Modules.IPC import IPCWindow
 
 class PromptDialog(QDialog):
     def __init__(self, title, description, parent=None):
@@ -167,11 +169,11 @@ class RegisterWindow(QMainWindow):
         self.LoginWindow.show()
 
 class ModuleWindow(QMainWindow):
-    def __init__(self, Email, Password):
+    def __init__(self, Email):
         super().__init__()
-        self.init_ui(Email,Password)
+        self.init_ui(Email)
 
-    def init_ui(self, Email,Password):
+    def init_ui(self, Email):
         
         self.setFixedSize(750, 550)
         self.setWindowTitle("CryptoFort | ModuleMenu")
@@ -270,11 +272,21 @@ class ModuleWindow(QMainWindow):
         UpdateAccount.clicked.connect(lambda: self.display_update_account_methods(Email))
 
         Module1.clicked.connect(lambda: self.display_Encrypto_Module(Email.text()))
+        Module2.clicked.connect(lambda: self.display_FManager_Module(Email.text()))
+        Module3.clicked.connect(lambda: self.display_IPC_Module(Email.text()))
         self.show()
 
     def display_Encrypto_Module(self, Email):
         self.Encrypto = EncryptoWindow(Email)
         self.Encrypto.show()
+
+    def display_FManager_Module(self, Email):
+        self.FManager = FManagerWindow(Email)
+        self.FManager.show()
+
+    def display_IPC_Module(self, Email):
+        self.IPC = IPCWindow(Email)
+        self.IPC.show()
         
     def display_account_info_methods(self, Email):
         self.AI = AccountInfo(Email)
@@ -419,7 +431,7 @@ class LoginWindow(QMainWindow):
            WrongPass.exec()
        elif(LoginResult == "Correct Password"):
            self.hide()
-           self.MM = ModuleWindow(self.loginInput, self.PasswordInput)
+           self.MM = ModuleWindow(self.loginInput)
            self.MM.show() 
            
            

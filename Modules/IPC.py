@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
     QDialog,
+    QTextEdit,
     QHBoxLayout,
 )
 from PyQt6.QtGui import QIcon
@@ -14,15 +15,14 @@ from PyQt6.QtCore import Qt
 import sys
 
 
-class EncryptoWindow(QMainWindow):
+class IPCWindow(QMainWindow):
     def __init__(self, Email):
-        print("Hello, I am working!!")
         super().__init__()
         self.init_ui(Email)
 
     def init_ui(self,Email):
-        self.setFixedSize(1200, 400)
-        self.setWindowTitle("CryptoFort | Encyrpto")
+        self.setFixedSize(350, 200)
+        self.setWindowTitle("CryptoFort | IPC")
         icon = QIcon("logo/logo.png")
         self.setWindowIcon(icon)
 
@@ -32,15 +32,19 @@ class EncryptoWindow(QMainWindow):
                 background: #000000; 
             }
 
-            QLineEdit {
-                border: 2px solid #00FF00; 
-                border-radius: 8px;
-                padding: 25px;
-                selection-background-color: #00FF00; 
-                background-color: #111111; 
-                color: #00FF00; 
-                font-size: 14px;
-            }
+          QTextEdit {
+        border: 2px solid #00FF00;
+        border-radius: 8px;
+        padding: 10px; 
+        selection-background-color: #00FF00;
+        background-color: #111111;
+        color: #00FF00;
+        font-size: 14px;
+    }
+    
+    QTextEdit:focus {
+        border: 2px solid #00FF00; 
+    }
 
             QPushButton {
                 border: 2px solid #00FF00; 
@@ -68,25 +72,9 @@ class EncryptoWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout(central_widget)
+        DisplayIPInformation = QPushButton("Display IP Information")
+        DisplayIPInformation.setFixedSize(300,70)
+        layout.addWidget(DisplayIPInformation, alignment=Qt.AlignmentFlag.AlignCenter)
 
-
-        InputBox = QLineEdit()
-        InputBox.setPlaceholderText("Enter Your Data Here")
-       
-
-        OutputBox = QLineEdit()
-        
-
-        ButtonLayout = QHBoxLayout()
-        Encrypt = QPushButton("Encrypt")
-        Decrypt = QPushButton("Decrypt")
-
-        ButtonLayout.addWidget(Encrypt)
-        ButtonLayout.addWidget(Decrypt)
-
-        layout.addWidget(InputBox)
-        layout.addWidget(Encrypt)
-        layout.addLayout(ButtonLayout)
-        layout.addWidget(OutputBox)
         self.show()
 
