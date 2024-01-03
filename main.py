@@ -412,10 +412,10 @@ class LoginWindow(QMainWindow):
     def loginGuide(self):
        LoginResult = loginLogic(self.loginInput, self.PasswordInput)
        if (LoginResult == "No Email Found"):
-            NoEmail = PromptDialog("Error", "No Data Found With This Email")
+            NoEmail = PromptDialog("Error!", "No Data Found With This Email")
             NoEmail.exec()
        elif(LoginResult == "InCorrect Password"):
-           WrongPass = PromptDialog("Error", "Wrong Password")
+           WrongPass = PromptDialog("Error!", "Wrong Password")
            WrongPass.exec()
        elif(LoginResult == "Correct Password"):
            self.hide()
