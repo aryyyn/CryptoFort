@@ -59,7 +59,7 @@ class AccountInfo(QMainWindow):
         layout.addWidget(QLabel(RegistrationIPText))
 
 
-        date_time_string = user_info.get("Date&Time_OF_Registration").strftime("%Y-%m-%d %H:%M:%S")
+        date_time_string = user_info.get("Date&Time_OF_Registration").strftime("%Y-%m-%D %H:%M:%S")
         DateText = "Registration Date&Time: " + date_time_string
         layout.addWidget(QLabel(DateText), alignment=Qt.AlignmentFlag.AlignLeft)
 

@@ -153,8 +153,8 @@ class RegisterWindow(QMainWindow):
         layout.addLayout(promptlogin_layout)
 
         rrsubmit.clicked.connect(self.regiserGuide)
-        self.showregisterpassword.clicked.connect(lambda: togglePassword(self.registerpassword))
-        self.showconfirmregisterpassword.clicked.connect(lambda: togglePassword(self.repassword))
+        self.showregisterpassword.clicked.connect(lambda: togglePassword(self.registerpassword,self.showregisterpassword))
+        self.showconfirmregisterpassword.clicked.connect(lambda: togglePassword(self.repassword, self.showconfirmregisterpassword))
         self.promptloginbtn.clicked.connect(self.openLogin)
 
         self.show()
@@ -383,14 +383,9 @@ class LoginWindow(QMainWindow):
         password_layout.addWidget(self.ShowLoginPass)
         password_layout.addWidget(ResetPassword)
 
-
         rrsubmit = QPushButton("Login")
         rrsubmit.setFixedSize(70, 30)
-
-
         
-        
-
         promptRegister_layout = QHBoxLayout()
         promptRegister = QLabel("Not A Member?")
         promptRegister.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -410,7 +405,7 @@ class LoginWindow(QMainWindow):
         layout.addWidget(rrsubmit, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addLayout(promptRegister_layout)
 
-        self.ShowLoginPass.clicked.connect(lambda: togglePassword(self.PasswordInput))
+        self.ShowLoginPass.clicked.connect(lambda: togglePassword(self.PasswordInput, self.ShowLoginPass))
         rrsubmit.clicked.connect(self.loginGuide)
         self.promptRegisterbtn.clicked.connect(self.showRegister)
         ResetPassword.clicked.connect(forgetPassword)
