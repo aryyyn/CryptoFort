@@ -14,6 +14,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 import sys
 import pymongo
+import json,requests
 
 
 class IPCWindow(QMainWindow):
@@ -22,7 +23,7 @@ class IPCWindow(QMainWindow):
         self.init_ui(Email)
 
     def init_ui(self,Email):
-        self.setBaseSize(350, 200)
+        self.setFixedSize(400, 200)
         self.setWindowTitle("CryptoFort | IPC")
         icon = QIcon("logo/logo.png")
         self.setWindowIcon(icon)
@@ -75,6 +76,8 @@ class IPCWindow(QMainWindow):
         layout = QVBoxLayout(central_widget)
 
         
+
+
         client = pymongo.MongoClient("mongodb://localhost:27017/")  
         db = client["CryptoFort"] 
         collection = db["User_Details"]
@@ -83,12 +86,25 @@ class IPCWindow(QMainWindow):
         
         RegisterdIP = user_info["Registration_IP"]
         Registered_IPLabel = QLabel(f"Registered IP: {RegisterdIP}")
+
         
         LastLoggedInIP = user_info["Last_LoggedIn_IP"]
         LastLoggedInIPLabel = QLabel(f"Last Logged In IP: {LastLoggedInIP}")
+
+        IPData = requests.get(f"https://api.iplocation.net/?ip={LastLoggedInIP}").text
+        parsed_IPData = json.loads(IPData)
+
+        country_name = parsed_IPData["country_name"]
+        isp = parsed_IPData["isp"]   
+
+        CountryNameLabel = QLabel(f"Country: {country_name}") 
+        ISPLabel = QLabel(f"ISP: {isp}") 
+        
         
         
         layout.addWidget(Registered_IPLabel)
         layout.addWidget(LastLoggedInIPLabel)
+        layout.addWidget(CountryNameLabel)
+        layout.addWidget(ISPLabel)
         self.show()
 
