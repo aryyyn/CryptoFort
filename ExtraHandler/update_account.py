@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 import pymongo,time,sys
+from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 
 class UpdateAccount(QMainWindow):
     def __init__(self, Email):
@@ -103,8 +104,11 @@ class UpdateAccount(QMainWindow):
         collection = db["User_Details"]
 
         result = collection.find_one({"email": Email})  
-        Password = result.get("password")
 
+        Password = result.get("password")
+        Encryptioncode = result.get("Encryption_code")
+
+        CurrentPassInput = enhancedEncryption(CurrentPassInput, Encryptioncode)
         if (Password!=CurrentPassInput):
             PasswordMismatch = QMessageBox()
             PasswordMismatch.setWindowTitle("Error")
@@ -167,6 +171,8 @@ class UpdateAccount(QMainWindow):
 
         result = collection.find_one({"email": Email})  
         Password = result.get("password")
+        Encryptioncode = result.get("Encryption_code")
+        CurrentPasswordInput = enhancedEncryption(CurrentPasswordInput, Encryptioncode)
 
         if (NewPassInput!=ConfirmNewPassInput):
             WrongPassword = QMessageBox()
@@ -183,6 +189,7 @@ class UpdateAccount(QMainWindow):
             return "Invalid Password Entered"
         
         if (Password == CurrentPasswordInput):
+            NewPassInput = enhancedEncryption(NewPassInput, Encryptioncode)
             UpdatePassword = collection.update_one(
                 {"email": Email},
                 {"$set": {"password": NewPassInput}}

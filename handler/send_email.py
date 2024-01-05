@@ -1,27 +1,29 @@
+import os
+from email.message import EmailMessage
+import ssl
 import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+load_dotenv()
 
-def send_email(subject, message, sender_email, receiver_email, password):
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = subject
+def email_verification(emailreceiver, verificationcode):
 
-    msg.attach(MIMEText(message, 'plain'))
+    email_sender = "cryptofortmail@gmail.com"
+    email_password = os.environ.get('EMAIL_PASSWORD')
 
-    try:
-        with smtplib.SMTP_SSL('smtp.mail.yahoo.com', 25 ) as smtp:
-            smtp.login(sender_email, password)
-            smtp.send_message(msg)
-        print("Email sent successfully!")
-    except Exception as e:
-        print(f"Failed to send email. Error: {str(e)}")
 
-sender_email = 'cryptofort@yahoo.com'
-receiver_email = 'fakeit00154@gmail.com'
-password = 'Ncit@123'
-subject = 'Test Email'
-message = 'This is a test email sent from Python!'
+    subject = "Verification code"
+    body  = f""" Your Verification code for '{emailreceiver}' is {verificationcode}  """
 
-send_email(subject, message, sender_email, receiver_email, password)
+    em = EmailMessage()
+    em['From'] = email_sender
+    em['To'] = emailreceiver
+    em['Subject'] = subject
+    em.set_content(body)
+
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        smtp.login(email_sender, email_password)
+        smtp.sendmail(email_sender, emailreceiver, em.as_string())
+
+

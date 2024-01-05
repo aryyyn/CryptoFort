@@ -6,6 +6,7 @@ import random, time
 from validate_email_address import validate_email
 from datetime import datetime
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
+from handler.send_email import email_verification
 
 def email_validator(email):
     is_valid = validate_email(email)
@@ -89,6 +90,7 @@ def registerLogic(eemail,epassword,erepassword):
 
             RegisterSuccess = QMessageBox()
             RegisterSuccess.setWindowTitle("Account Created!")
+            email_verification(email,random_number)
             RegisterSuccess.setText("Account Has Been Successfully Created!")
             button = RegisterSuccess.exec()
             return "Success"

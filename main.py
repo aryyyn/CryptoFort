@@ -15,12 +15,12 @@ import sys
 from handler.Register_logic import registerLogic
 from handler.showPassword import togglePassword
 from handler.login_logic import loginLogic
-from handler.forget_password import forgetPassword
 from ExtraHandler.account_info import AccountInfo
 from ExtraHandler.update_account import UpdateAccount
 from Modules.Encrypto import EncryptoWindow
 from Modules.FManager import FManagerWindow
 from Modules.IPC import IPCWindow
+from handler.forget_password import ForgetPassword
 
 class PromptDialog(QDialog):
     def __init__(self, title, description, parent=None):
@@ -408,9 +408,13 @@ class LoginWindow(QMainWindow):
         self.ShowLoginPass.clicked.connect(lambda: togglePassword(self.PasswordInput, self.ShowLoginPass))
         rrsubmit.clicked.connect(self.loginGuide)
         self.promptRegisterbtn.clicked.connect(self.showRegister)
-        ResetPassword.clicked.connect(forgetPassword)
+        ResetPassword.clicked.connect(self.showForgetPassword)
         self.show()
- 
+    
+    def showForgetPassword(self):
+        self.FP = ForgetPassword()
+        self.FP.show()
+
     def showRegister(self):
         self.hide()
         self.RW = RegisterWindow()

@@ -4,4 +4,5 @@ Modules/__pycache__
 Modules/Encrypto/__pycache__
 Algorithm/__pycache__
 __pycache__/
+.env
 tempCodeRunnerFile.py
