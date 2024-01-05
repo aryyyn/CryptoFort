@@ -71,6 +71,7 @@ def registerLogic(eemail,epassword,erepassword):
             EncryptionCode+=EncryptionCode
             EncryptionCode+=EncryptionCode
             encrypted_password = enhancedEncryption(password, EncryptionCode)
+            random_number = random.randint(000000, 999999)
             IP = get_ip_address() 
             LastLoggedInIP = IP
             user_data = {
@@ -79,7 +80,9 @@ def registerLogic(eemail,epassword,erepassword):
             "Encryption_code": EncryptionCode,
             "Registration_IP": IP,
             "Last_LoggedIn_IP": LastLoggedInIP,
-            "Date&Time_OF_Registration": getDateAndTime()
+            "Date&Time_OF_Registration": getDateAndTime(),
+            "is_Verified": "False",
+            "Verification_code": random_number
 
             }
             collection.insert_one(user_data)

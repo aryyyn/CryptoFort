@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 import sys
+from Algorithm.ceaser_cipher import simpleEcnryption, SimpleDecription
 
 
 class EncryptoWindow(QMainWindow):
@@ -83,7 +84,7 @@ class EncryptoWindow(QMainWindow):
         OutputBox.setPlaceholderText("Output")
         OutputBox.setFixedHeight(250)
         
-
+        
         ButtonLayout = QHBoxLayout()
 
         Encrypt = QPushButton("Encrypt")
@@ -98,5 +99,20 @@ class EncryptoWindow(QMainWindow):
         layout.addLayout(ButtonLayout)
         layout.addWidget(OutputBox)
 
+        Encrypt.clicked.connect(lambda: self.EncryptText(InputBox.toPlainText(), OutputBox))
+        Decrypt.clicked.connect(lambda: self.DecryptText(InputBox.toPlainText(), OutputBox) )
+
+        
+        
+
         self.show()
+
+    def EncryptText(self, TextToEncrypt, OutputBox : QTextEdit):
+        EncryptedText = simpleEcnryption(TextToEncrypt)
+        OutputBox.setText(EncryptedText)
+
+    def DecryptText(self, TextToDecrypt, OutputBox: QTextEdit):
+        DecryptedText = SimpleDecription(TextToDecrypt)
+        OutputBox.setText(DecryptedText)
+        
 

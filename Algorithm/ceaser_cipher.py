@@ -4,23 +4,20 @@ def simpleEcnryption(NormalText):
     Encrypted_text = ""
     for i in range(len(NormalText)):
         ch = NormalText[i]
-        Enc = (chr(ord(ch) + 9))
+        Enc = (chr(ord(ch) + 1))
         Encrypted_text+=Enc
     return Encrypted_text
         
 
-def SimpleDecription(Text):
+def SimpleDecription(EncryptedText):
     DecryptedText = ""
-    for i in range(len(Text)):
-        char = Text[i]
-        Dec = (chr(ord(char) -9))
+    for i in range(len(EncryptedText)):
+        char = EncryptedText[i]
+        Dec = (chr(ord(char) -1))
         DecryptedText+=Dec
     return DecryptedText
 
         
-EncryptedText = simpleEcnryption("Password")
-DecryptedText = SimpleDecription(EncryptedText)
-print(EncryptedText)
-print(DecryptedText)
+
 
 
