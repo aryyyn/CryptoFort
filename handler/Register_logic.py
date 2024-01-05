@@ -2,9 +2,10 @@ import pymongo
 from PyQt6.QtWidgets import QMessageBox, QLineEdit, QDialog,QDialogButtonBox,QVBoxLayout,QLabel
 import socket
 import requests
-import random
+import random, time
 from validate_email_address import validate_email
 from datetime import datetime
+from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 
 def email_validator(email):
     is_valid = validate_email(email)
@@ -65,14 +66,19 @@ def registerLogic(eemail,epassword,erepassword):
         
 
         try:
+            epoch = str(time.time())
+            EncryptionCode = epoch.split('.')[1]
+            EncryptionCode+=EncryptionCode
+            EncryptionCode+=EncryptionCode
+            encrypted_password = enhancedEncryption(password, EncryptionCode)
             IP = get_ip_address() 
             LastLoggedInIP = IP
             user_data = {
             "email": email.lower(),
-            "password": password,
+            "password": encrypted_password,
+            "Encryption_code": EncryptionCode,
             "Registration_IP": IP,
             "Last_LoggedIn_IP": LastLoggedInIP,
-            "Secret_Code":123456789123456789,
             "Date&Time_OF_Registration": getDateAndTime()
 
             }

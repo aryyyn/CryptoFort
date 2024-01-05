@@ -2,6 +2,7 @@ import requests
 from PyQt6.QtWidgets import QMessageBox, QLineEdit, QDialog,QDialogButtonBox,QVBoxLayout,QLabel
 import time
 import pymongo
+from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 
 def loginLogic(eemail, epassword):
     email = eemail.text().lower()
@@ -18,7 +19,11 @@ def loginLogic(eemail, epassword):
     else:
         results = collection.find({"email": email})
         for data in results:
-            if data["password"] == password:
+            DecryptedPassword = data["password"]
+            Encryptioncode = data ["Encryption_code"]
+            Password = enhancedEncryption(password, Encryptioncode)
+            
+            if DecryptedPassword == Password:
                 return "Correct Password"
             else:
                 return "InCorrect Password"
