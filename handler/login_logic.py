@@ -5,7 +5,9 @@ import time
 import pymongo
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 
+
 def loginLogic(eemail, epassword):
+    
     email = eemail.text().lower()
     password = epassword.text()
 
@@ -14,7 +16,7 @@ def loginLogic(eemail, epassword):
     collection = db["User_Details"]
 
     count = collection.count_documents({"email": email})
-
+   
     if count == 0:
         NoEmailFound = QMessageBox()
         NoEmailFound.setWindowTitle("Error!")
@@ -62,8 +64,10 @@ def loginLogic(eemail, epassword):
                 layout.addLayout(HeaderLayout)
                 layout.addLayout(FooterLayout)
 
-                CodeSubmit.clicked.connect(codeCheck(email, CodeSubmit.text()))
+                CodeSubmit.clicked.connect(lambda: codeCheck(email, EnterCode))
+                ResendCode.clicked.connect(lambda: resendCode(email))
                 NotVerified.exec()
+                
 
                 #NotVerified = QInputDialog()
                 #NotVerified.setWindowTitle("Test")
@@ -77,11 +81,19 @@ def codeCheck(email, InputCode):
     collection = db["User_Details"]
 
     results = collection.find({"email": email})
-
+    
     for data in results:
         Code = data["Verification_code"]
-        if (InputCode == Code):
-            return "Correct Password"
+        if (int(InputCode.text()) == int(Code)):
+            print("Correct code")
+            return True
+        else:
+            print("Wrong code")
+            return False
+        
+
+def resendCode(email):
+    print("working")
 
 
                 
