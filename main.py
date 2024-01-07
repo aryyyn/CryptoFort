@@ -172,9 +172,8 @@ class ModuleWindow(QMainWindow):
     def __init__(self, Email):
         super().__init__()
         self.init_ui(Email)
-
-    def init_ui(self, Email):
         
+    def init_ui(self, Email):
         self.setFixedSize(750, 550)
         self.setWindowTitle("CryptoFort | ModuleMenu")
         icon = QIcon("logo/logo.png")
@@ -270,7 +269,6 @@ class ModuleWindow(QMainWindow):
 
         AccountInfo.clicked.connect(lambda: self.display_account_info_methods(Email))
         UpdateAccount.clicked.connect(lambda: self.display_update_account_methods(Email))
-
         Module1.clicked.connect(lambda: self.display_Encrypto_Module(Email.text()))
         Module2.clicked.connect(lambda: self.display_FManager_Module(Email.text()))
         Module3.clicked.connect(lambda: self.display_IPC_Module(Email.text()))
