@@ -41,10 +41,8 @@ def registerLogic(eemail,epassword,erepassword):
         
 
         if (email_validator(email)) == False:
-            InvalidEmail = QMessageBox()
-            InvalidEmail.setWindowTitle("Error")
-            InvalidEmail.setText("Email Is Not Valid")
-            button = InvalidEmail.exec()
+            hi = QDialog()
+            QMessageBox.critical(hi, "Error", "Invalid Email")
             return "Invalid Email"
         
         if (count>0):

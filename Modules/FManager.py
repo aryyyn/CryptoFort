@@ -78,7 +78,7 @@ class FManagerWindow(QMainWindow):
             FileUploadInfoLabel.setText(f"Current File In Database: {fileName}")
 
         FileUpload = QPushButton("Upload File")
-        FileUpload.clicked.connect(lambda: self.UploadFileHandler(Email,FileUploadInfoLabel))
+        
 
         FooterButtonLayout = QHBoxLayout()
         GetCurrentFileBtn = QPushButton("Get Current DB File")
@@ -95,14 +95,31 @@ class FManagerWindow(QMainWindow):
         layout.addWidget(FileUpload, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addLayout(FooterButtonLayout)
 
+        FileUpload.clicked.connect(lambda: self.UploadFileHandler(Email,FileUploadInfoLabel))
+        DeleteCurrentFileBtn.clicked.connect(lambda: self.deleteCurrentFile(Email,FileUploadInfoLabel))
+        GetCurrentFileBtn.clicked.connect(lambda:self.getCurrentFile(Email))
+
         self.show()
+
+    def passInput(self):
+        Hello = QDialog()
+        Hello.setWindowTitle("Enter A Password")
+        layout = QVBoxLayout()
+        password_input = QLineEdit()
+        layout.addWidget(password_input)
+
+        submitbtm = QPushButton("Submit")
+        layout.addWidget(submitbtm)
+        submitbtm.clicked.connect(Hello.accept)
+
+        Hello.setLayout(layout)
+        Hello.exec()
+        return password_input.text()
     
     def UploadFileHandler(self, Email,FileInfoLabel: QLabel ):
         count = collection.count_documents({"email": Email})
         if count == 1:
-            dialog = QInputDialog()
-            QMessageBox.information(dialog, "Error", "The system allows for the upload of only one file.\nDelete the current file to upload a new one.")
-            dialog.accept()
+            QMessageBox.critical(self, "Error", "The system allows for the upload of only one file.\nDelete the current file to upload a new one.")
             return
         
         FileDialog = QFileDialog()
@@ -114,29 +131,16 @@ class FManagerWindow(QMainWindow):
                 basefilename = os.path.basename(filename)
 
                 if (filesize > 16793598):
-                    dialog = QInputDialog()
-                    QMessageBox.information(dialog, "File too large!", "The Limit is 16mb.")
-                    dialog.accept()
+                    QMessageBox.critical(self, "File too large!", "The Limit is 16mb.")
                     return
                 
-                Hello = QDialog()
-                Hello.setWindowTitle("Enter A Password")
-                layout = QVBoxLayout()
-                password_input = QLineEdit()
-                layout.addWidget(password_input)
-
-                submitbtm = QPushButton("Submit")
-                layout.addWidget(submitbtm)
-                submitbtm.clicked.connect(Hello.accept)
-
-                Hello.setLayout(layout)
-                Hello.exec()
+                password_input = self.passInput()
 
                 epoch = str(time.time())
                 EncryptionCode = epoch.split('.')[1]
                 EncryptionCode+=EncryptionCode
                 EncryptionCode+=EncryptionCode
-                password = password_input.text()
+                password = password_input
                 encrypted_password = enhancedEncryption(password, EncryptionCode)
                 
                 
@@ -152,22 +156,88 @@ class FManagerWindow(QMainWindow):
                             "email": Email,
                             "filename": basefilename,
                             "content": binary_content,
-                            "password": encrypted_password
+                            "password": encrypted_password,
+                            "Encryption_code": EncryptionCode
                         }
 
                         result = collection.insert_one(document)
-                        dialog = QInputDialog()
-                        QMessageBox.information(dialog,"Success!","Your File Has Been Uploaded!")
+                        QMessageBox.information(self,"Success!","Your File Has Been Uploaded!")
                         FileInfoLabel.setText(f"Current File In Database: {basefilename}")
-
-                        dialog.accept()
                 else:
-                    dialog = QInputDialog()
-                    QMessageBox.information(dialog,"Error","Please Enter A Password!")
-                    dialog.accept()
+                    QMessageBox.information(self,"Error","Please Enter A Password!")
 
             except Exception as err:
                 print(err)
+
+
+
+    def deleteCurrentFile(self,Email,FileInfoLabel: QLabel ):
+        count = collection.count_documents({"email": Email})
+        if(count == 0):
+            QMessageBox.information(self, "Error", "No File Found")
+            return
+        
+        else:
+            password = self.passInput()
+            results = collection.find({"email": Email})
+            for data in results:
+                encrypted_db_password = data["password"]
+                EncryptionCode = data["Encryption_code"]
+            encrypted_password = enhancedEncryption(password, EncryptionCode) 
+
+            if (encrypted_password != encrypted_db_password):
+                QMessageBox.critical(self, "Error", "Passwords do not match!")
+                return
+            
+            result = collection.delete_one({"email": Email})
+            if (result.deleted_count > 0):
+                QMessageBox.critical(self, "Success", "File has been deleted successfully!")
+
+            else:
+                QMessageBox.critical(self, "Error", "An Internal Error Has Occurred!\nPlease Try Again Later")
+                return "Internal Error Has Occurred"
+            
+    
+    def getCurrentFile(self,Email):
+        count = collection.count_documents({"email": Email})
+        if(count == 0):
+            QMessageBox.critical(self, "Error", "No File Found")
+            return
+        
+        else:
+            password = self.passInput()
+            results = collection.find({"email": Email})
+            for data in results:
+                encrypted_db_password = data["password"]
+                EncryptionCode = data["Encryption_code"]
+                filecontent = data["content"]
+            encrypted_password = enhancedEncryption(password, EncryptionCode) 
+
+            if (encrypted_password != encrypted_db_password):
+                QMessageBox.critical(self, "Error", "Passwords do not match!")
+                return
+            
+            filepath, _ = QFileDialog.getSaveFileName(self, "Save File", "", "All Files (*)")
+            
+            if filepath:
+                try:
+                    with open(filepath, 'wb') as file:
+                        file.write(filecontent)
+                    QMessageBox.information(self, "Success", "File Saved Successfully")
+                except Exception as err:
+                    QMessageBox.critical(self, "Error", f"Failed to save file: {err}")
+            
+            
+
+
+
+
+
+
+
+            
+
+        
 
 
 
