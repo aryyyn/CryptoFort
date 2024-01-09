@@ -191,6 +191,7 @@ class FManagerWindow(QMainWindow):
             
             result = collection.delete_one({"email": Email})
             if (result.deleted_count > 0):
+                FileInfoLabel.setText("No File Uploaded")
                 QMessageBox.critical(self, "Success", "File has been deleted successfully!")
 
             else:
