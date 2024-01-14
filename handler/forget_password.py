@@ -40,20 +40,21 @@ class ForgetPassword(QMainWindow):
             * {
                 color: #00FF00; 
                 background: #000000; 
+                font-size: 14px;
             }
 
-                           
-            Qlabel {
-            font-size: 3px
+            QLabel {
+                font-size: 16px;
+                font-weight: bold;
             }
-                           
-                                       QPushButton {
+
+            QPushButton {
                 border: 2px solid #00FF00; 
                 border-radius: 8px;
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                             stop: 0 #111111, stop: 0.5 #222222, stop: 1 #111111);
                 min-width: 100px;
-                font-size: 12px;
+                font-size: 14px;
                 color: #00FF00; 
             }
 
@@ -61,14 +62,6 @@ class ForgetPassword(QMainWindow):
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                             stop: 0 #222222, stop: 0.5 #111111, stop: 1 #222222);
             }
-
-            QLabel {
-                color: #00FF00; 
-                font-size: 16px;
-                font-weight: bold;
-            }
-
-
         """)
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -114,8 +107,9 @@ class ForgetPassword(QMainWindow):
 
         layout.addLayout(HeaderLayout)
         layout.addLayout(EmailLayout)
-        layout.addLayout(CodeLayout)
         layout.addWidget(SendCode, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addLayout(CodeLayout)
+        
         layout.addLayout(PasswordLayout)
         layout.addWidget(SubmitButton, alignment=Qt.AlignmentFlag.AlignCenter)
         

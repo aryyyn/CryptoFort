@@ -120,17 +120,11 @@ class UpdateAccount(QMainWindow):
             result = collection.delete_one({"email": Email})
 
             if (result.deleted_count > 0):
-                Success = QMessageBox()
-                Success.setWindowTitle("Success!")
-                Success.setText("Account Has Been Deleted SuccessFully!")
-                Success.exec()
+                QMessageBox.information(self, "Success!", "Account Has Been Successfully Deleted.")
                 sys.exit()
 
             else:
-                Failure = QMessageBox()
-                Failure.setWindowTitle("Failure")
-                Failure.setText("An Internal Error Has Occurred!\nPlease Try Again Later")
-                Failure.exec()
+                QMessageBox.information(self, "Error!", "An Internal Error Has Occurred.\nPlease Try Again Later.")
                 return "Internal Error Has Occurred"
 
 
@@ -175,17 +169,11 @@ class UpdateAccount(QMainWindow):
         CurrentPasswordInput = enhancedEncryption(CurrentPasswordInput, Encryptioncode)
 
         if (NewPassInput!=ConfirmNewPassInput):
-            WrongPassword = QMessageBox()
-            WrongPassword.setWindowTitle("Error")
-            WrongPassword.setText("Passwords Don't Match")
-            button = WrongPassword.exec()
+            QMessageBox.critical(self, "Error!", "Passwords Do Not Match.")
             return "Passwords Don't Match"
         
         if (Password!=CurrentPasswordInput):
-            PasswordMismatch = QMessageBox()
-            PasswordMismatch.setWindowTitle("Error")
-            PasswordMismatch.setText("You Have Entered An Invalid Password")
-            button = PasswordMismatch.exec()
+            QMessageBox.critical(self, "Error!", "You Have Entered An Invalid Password")
             return "Invalid Password Entered"
         
         if (Password == CurrentPasswordInput):
@@ -195,17 +183,11 @@ class UpdateAccount(QMainWindow):
                 {"$set": {"password": NewPassInput}}
             )
             if UpdatePassword.modified_count > 0:
-                Success = QMessageBox()
-                Success.setWindowTitle("Success!")
-                Success.setText("Account Password Has Been Changed Successfully!\nPlease ReLogIn")
-                Success.exec()
+                QMessageBox.information(self, "Success!", "Password Has Been Changed Successfully.")
                 sys.exit()
 
             else:
-                Failure = QMessageBox()
-                Failure.setWindowTitle("Failure")
-                Failure.setText("An Internal Error Has Occurred!\nPlease Try Again Later")
-                Failure.exec()
+                QMessageBox.information(self, "Error!", "An Internal Error Has Occurred.\nPlease Try Again Later.")
                 return "Internal Error Has Occurred"
                 
 
