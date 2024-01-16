@@ -7,10 +7,28 @@ from validate_email_address import validate_email
 from datetime import datetime
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 from handler.send_email import email_verification
+import json
 
 def email_validator(email):
-    is_valid = validate_email(email)
-    return is_valid
+    
+    url = "https://mailcheck.p.rapidapi.com/"
+
+    querystring = {f"domain":email}
+
+    headers = {
+        "X-RapidAPI-Key": "f915c4a512msh76e2a162364f95dp1b9870jsn6c7af782053b",
+        "X-RapidAPI-Host": "mailcheck.p.rapidapi.com"
+    }
+    response = requests.get(url, headers=headers, params=querystring).text
+    parsed_email_data = json.loads(response)
+    print(parsed_email_data)
+    if (str((parsed_email_data["valid"])) == "True"):
+        if (str((parsed_email_data["text"])) == "Looks okay"):
+            if(str((parsed_email_data["disposable"])) == "False"):
+                return True
+    else:
+        return False
+        
 
 def getDateAndTime():
     DateAndTime = datetime.now()
@@ -40,7 +58,9 @@ def registerLogic(eemail,epassword,erepassword):
         count = collection.count_documents({"email": email})
         
 
-        if (email_validator(email)) == False:
+        if (email_validator(email)):
+            pass
+        else:
             hi = QDialog()
             QMessageBox.critical(hi, "Error", "Invalid Email")
             return "Invalid Email"
