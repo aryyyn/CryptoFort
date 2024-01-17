@@ -8,7 +8,9 @@ from datetime import datetime
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 from handler.send_email import email_verification
 import json
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
 def email_validator(email):
     
     url = "https://mailcheck.p.rapidapi.com/"
@@ -16,7 +18,7 @@ def email_validator(email):
     querystring = {f"domain":email}
 
     headers = {
-        "X-RapidAPI-Key": "f915c4a512msh76e2a162364f95dp1b9870jsn6c7af782053b",
+        "X-RapidAPI-Key": os.environ.get("EMAIL_CODE"),
         "X-RapidAPI-Host": "mailcheck.p.rapidapi.com"
     }
     response = requests.get(url, headers=headers, params=querystring).text

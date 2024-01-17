@@ -17,6 +17,9 @@ from PyQt6.QtCore import Qt
 import pymongo,time,sys
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 import time,pyotp,qrcode
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
 db = client["CryptoFort"] 
@@ -76,7 +79,7 @@ class UpdateAccount(QMainWindow):
 
         layout = QVBoxLayout(central_widget)
 
-        key = "HelloFortCryptoSecretKey"
+        key = os.environ.get("SECRET_CODE_2FA")
         topt = pyotp.TOTP(key)
         
         uri = pyotp.totp.TOTP(key).provisioning_uri(name=Email.text(), issuer_name="CryptoFortApp")
