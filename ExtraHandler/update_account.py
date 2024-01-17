@@ -9,11 +9,13 @@ from PyQt6.QtWidgets import (
     QDialog,
     QHBoxLayout,
     QMessageBox,
+    
 )
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QFont, QPixmap, QMovie, QRegion
 from PyQt6.QtCore import Qt
 import pymongo,time,sys
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
+import time,pyotp,qrcode
 
 class UpdateAccount(QMainWindow):
     def __init__(self, Email):
@@ -23,7 +25,7 @@ class UpdateAccount(QMainWindow):
 
 
     def init_ui(self,Email):
-        self.setFixedSize(300, 150)
+        self.setFixedSize(300, 200)
         self.setWindowTitle("Update Account")
         icon = QIcon("logo/logo.png")
         self.setWindowIcon(icon)
@@ -69,14 +71,68 @@ class UpdateAccount(QMainWindow):
 
         UpdatePassword = QPushButton("Update Password")
         DeleteAccount = QPushButton("Delete Account")
+        Enable2fa = QPushButton("Enable 2fa")
         UpdatePassword.setFixedSize(50,50)
         DeleteAccount.setFixedSize(50,50)
-        
+        Enable2fa.setFixedSize(50,50)
         layout.addWidget(UpdatePassword, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(DeleteAccount, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(Enable2fa, alignment=Qt.AlignmentFlag.AlignCenter)
         UpdatePassword.clicked.connect(lambda: self.changePasswordUI(Email))
         DeleteAccount.clicked.connect(lambda: self.deleteAccountUI(Email))
+        Enable2fa.clicked.connect(lambda: self.twoFactUI(Email))
+
         self.show()
+
+    def twoFactUI(self, Email):
+
+    
+     
+        key = "HelloFortCryptoSecretKey"
+
+        topt = pyotp.TOTP(key)
+
+        # print(topt.now())
+
+        uri = pyotp.totp.TOTP(key).provisioning_uri(name=Email.text(), issuer_name="CryptoFortApp")
+        qrcode.make(uri).save("Logo/2fa.png")
+
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle("2fa Code")
+        dialog.setFixedSize(500,600)
+
+        layout = QVBoxLayout(dialog)
+
+        label = QLabel(self)
+        TextLabel = QLabel("Scan The Code On Your Google Auth App To Enable 2fa")
+        pixmap = QPixmap('Logo/2fa.png')
+
+        CodeInputLayout = QHBoxLayout()
+        CodeInputLabel = QLabel("Enter Your Code: ")
+        CodeInput = QLineEdit()
+
+        SubmitButton = QPushButton("Submit")
+
+
+        CodeInputLayout.addWidget(CodeInputLabel)
+        CodeInputLayout.addWidget(CodeInput)
+        label.setPixmap(pixmap)
+
+        layout.addWidget(TextLabel)
+        layout.addWidget(label)
+        layout.addLayout(CodeInputLayout)
+
+        layout.addWidget(SubmitButton,alignment=Qt.AlignmentFlag.AlignCenter)
+        SubmitButton.clicked.connect(lambda: self.twoFactSetup(CodeInput.text(),topt.now(), Email.text()))
+        
+        dialog.exec()
+    def twoFactSetup(self,codeinput, realcode, email):
+        if(codeinput == realcode):
+            print("correct code")
+        else:
+            return
+        pass
 
     def deleteAccountUI(self,Email):
         dialog = QDialog(self)

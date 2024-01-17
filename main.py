@@ -46,7 +46,7 @@ class RegisterWindow(QMainWindow):
     def init_ui(self):
         self.setFixedSize(750, 550)
         self.setWindowTitle("CryptoFort | Register")
-        icon = QIcon("logo/logo.png")
+        icon = QIcon("Logo/logo.png")
         self.setWindowIcon(icon)
 
         self.setStyleSheet("""
@@ -315,7 +315,7 @@ class LoginWindow(QMainWindow):
 
             QLineEdit {
                 border: 2px solid #00FF00; 
-                border-radius: 8px;
+                border-radius: 15px;
                 padding: 25px;
                 selection-background-color: #00FF00; 
                 background-color: #111111; 
@@ -325,7 +325,7 @@ class LoginWindow(QMainWindow):
 
             QPushButton {
                 border: 2px solid #00FF00; 
-                border-radius: 8px;
+                border-radius: 12px;
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                             stop: 0 #111111, stop: 0.5 #222222, stop: 1 #111111);
                 min-width: 100px;
@@ -351,6 +351,8 @@ class LoginWindow(QMainWindow):
         layout = QVBoxLayout(central_widget)
         layout.setContentsMargins(100, 100, 100, 100)
         layout.setSpacing(5)
+
+        
 
         LoginTitle = QLabel("CryptoFort || Login")
         LoginTitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -381,6 +383,8 @@ class LoginWindow(QMainWindow):
         password_layout.addWidget(self.ShowLoginPass)
         password_layout.addWidget(ResetPassword)
 
+
+    
         rrsubmit = QPushButton("Login")
         rrsubmit.setFixedSize(70, 30)
         
