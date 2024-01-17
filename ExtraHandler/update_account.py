@@ -117,14 +117,6 @@ class UpdateAccount(QMainWindow):
 
     def twoFactUI(self,topt, Email):
 
-    
-     
-        
-
-        # print(topt.now())
-
-
-
 
         dialog = QDialog(self)
         dialog.setWindowTitle("2fa Code")
@@ -163,33 +155,36 @@ class UpdateAccount(QMainWindow):
 
     def twoFactSetup(self,codeinput,topt,email, dialog: QDialog):
         realcode = topt.now()
-        if(codeinput == realcode):
-           results = collection.find({"email": email})
-           
-           for data in results:
-               random_number = random.randint(000000, 999999)
-               collection.update_one(
-                    {"email": data["email"]},  
-                    {
-                        "$set": {
-                            "is_2fa_enabled": True,
-                            "2fa_backupcode": random_number
-                        }
-                    }
-                )
-               QMessageBox.information(self, "Success!", f"Your Backup Code is: {random_number}")
-               dialog.hide()
-               self.hide()
+        try:
+            if(codeinput == realcode):
+                results = collection.find({"email": email})
+                
+                for data in results:
+                    random_number = random.randint(000000, 999999)
+                    collection.update_one(
+                            {"email": data["email"]},  
+                            {
+                                "$set": {
+                                    "is_2fa_enabled": True,
+                                    "2fa_backupcode": random_number
+                                }
+                            }
+                        )
+                    QMessageBox.information(self, "Success!", f"2fa Enabled!\nYour Backup Code is: {random_number}")
+                    dialog.hide()
+                    self.hide()
 
-    
-        else:
-            QMessageBox.critical(self, "Error", "Wrong Code!")
-        pass
+        
+            else:
+                QMessageBox.critical(self, "Error", "Wrong Code!")
+            
+        except Exception as err:
+            QMessageBox.information(self, "Error!", f"There has been an error: {err}")
 
     def disable2faUI(self,topt,email):
         InputDialog = QDialog(self)
         InputDialog.setWindowTitle("Disable 2fa")
-        InputDialog.setFixedSize(400,100)
+        InputDialog.setFixedSize(600,100)
         
         layout = QHBoxLayout(InputDialog)
         Vlayout = QHBoxLayout(InputDialog)
@@ -204,30 +199,37 @@ class UpdateAccount(QMainWindow):
         InputDialog.exec()
 
     def check2fa(self,email,topt ,inputcode,InputDialog: QDialog):
-        realcode = topt.now()
-        if(inputcode == realcode):
-           results = collection.find({"email": email})
-           
-           for data in results:
-               random_number = random.randint(000000, 999999)
-               collection.update_one(
-                    {"email": data["email"]},  
-                    {
-                        "$set": {
-                            "is_2fa_enabled": False,
-                            "2fa_backupcode": ""
-                        }
-                    }
-                )
-               QMessageBox.information(self, "Success!", f"2fa Has Been Disabled!")
-               InputDialog.hide()
-               self.hide()
-        else:
-            QMessageBox.critical(self, "Error", "Wrong Code!")
-        pass
+        try:
+            realcode = topt.now()
+            results = collection.find({"email": email})
+            for data in results:
+                backupcode = data["2fa_backupcode"]
+                
+            if(inputcode == realcode or int(inputcode) == int(backupcode)):
+            
+                results = collection.find({"email": email})
+                
+                for data in results:
+                    random_number = random.randint(000000, 999999)
+                    collection.update_one(
+                            {"email": data["email"]},  
+                            {
+                                "$set": {
+                                    "is_2fa_enabled": False,
+                                    "2fa_backupcode": ""
+                                }
+                            }
+                        )
+                    QMessageBox.information(self, "Success!", f"2fa Has Been Disabled!")
+                    InputDialog.hide()
+                    self.hide()
+            else:
+                QMessageBox.critical(self, "Error", "Wrong Code!")
 
+        except Exception as err:
+            QMessageBox.information(self, "Error!", f"There has been an error: {err}")
 
-
+        
 
     def deleteAccountUI(self,Email):
         dialog = QDialog(self)
