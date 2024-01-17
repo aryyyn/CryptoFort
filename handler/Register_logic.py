@@ -102,7 +102,7 @@ def registerLogic(eemail,epassword,erepassword):
             "Registration_IP": IP,
             "Last_LoggedIn_IP": LastLoggedInIP,
             "Date&Time_OF_Registration": getDateAndTime(),
-            "is_Verified": "False",
+            "is_Verified": False,
             "Verification_code": random_number,
             "is_2fa_enabled": False,
             "2fa_backupcode": ""

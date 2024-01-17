@@ -430,6 +430,12 @@ class LoginWindow(QMainWindow):
        elif(LoginResult == "InCorrect Password"):
            WrongPass = PromptDialog("Error!", "Wrong Password")
            WrongPass.exec()
+       elif(LoginResult == "Wrong Code"):
+           WrongCode = PromptDialog("Error!", "Wrong Code")
+           WrongPass.exec() 
+       elif(LoginResult == "Error"):
+           InvalidResult = PromptDialog("Error!", "There Has Been An Error!")
+           InvalidResult.exec()  
        elif(LoginResult == "Correct Password"):
            self.hide()
            self.MM = ModuleWindow(self.loginInput)

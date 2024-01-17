@@ -102,7 +102,7 @@ class UpdateAccount(QMainWindow):
 
         results = collection.find({"email": Email.text()})
         for data in results:
-            print("checking")
+            # print("checking")
             if (data["is_2fa_enabled"]):
                 print(data["is_2fa_enabled"])
                 Enable2fa.setDisabled(True)
