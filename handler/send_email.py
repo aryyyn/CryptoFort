@@ -12,7 +12,7 @@ def email_verification(emailreceiver, verificationcode):
 
 
     subject = "Verification code"
-    body  = f""" Your Verification code for '{emailreceiver}' is {verificationcode}  """
+    body  = f""" Your Verification code for Email:'{emailreceiver}' is {verificationcode}  """
 
     em = EmailMessage()
     em['From'] = email_sender
