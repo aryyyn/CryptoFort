@@ -1,3 +1,4 @@
+import random
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -17,6 +18,12 @@ import pymongo,time,sys
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 import time,pyotp,qrcode
 
+client = pymongo.MongoClient("mongodb://localhost:27017/")  
+db = client["CryptoFort"] 
+collection = db["User_Details"]
+
+
+
 class UpdateAccount(QMainWindow):
     def __init__(self, Email):
         super().__init__()
@@ -25,7 +32,7 @@ class UpdateAccount(QMainWindow):
 
 
     def init_ui(self,Email):
-        self.setFixedSize(300, 200)
+        self.setFixedSize(300, 280)
         self.setWindowTitle("Update Account")
         icon = QIcon("logo/logo.png")
         self.setWindowIcon(icon)
@@ -69,40 +76,62 @@ class UpdateAccount(QMainWindow):
 
         layout = QVBoxLayout(central_widget)
 
+        key = "HelloFortCryptoSecretKey"
+        topt = pyotp.TOTP(key)
+        
+        uri = pyotp.totp.TOTP(key).provisioning_uri(name=Email.text(), issuer_name="CryptoFortApp")
+        qrcode.make(uri).save("Logo/2fa.png")
+        
+        # headerLayout = QHBoxLayout()
         UpdatePassword = QPushButton("Update Password")
         DeleteAccount = QPushButton("Delete Account")
         Enable2fa = QPushButton("Enable 2fa")
+        Disable2fa = QPushButton("Disable 2fa")
+        # Disable2fa = QPushButton("Disable 2fa")
         UpdatePassword.setFixedSize(50,50)
         DeleteAccount.setFixedSize(50,50)
         Enable2fa.setFixedSize(50,50)
+        Disable2fa.setFixedSize(50,50)
         layout.addWidget(UpdatePassword, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(DeleteAccount, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(Enable2fa, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(Disable2fa, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        results = collection.find({"email": Email.text()})
+        for data in results:
+            print("checking")
+            if (data["is_2fa_enabled"]):
+                print(data["is_2fa_enabled"])
+                Enable2fa.setDisabled(True)
+                Disable2fa.setDisabled(False)
+            else:
+                Enable2fa.setDisabled(False)
+                Disable2fa.setDisabled(True)
+            
         UpdatePassword.clicked.connect(lambda: self.changePasswordUI(Email))
         DeleteAccount.clicked.connect(lambda: self.deleteAccountUI(Email))
-        Enable2fa.clicked.connect(lambda: self.twoFactUI(Email))
+        Enable2fa.clicked.connect(lambda: self.twoFactUI(topt,Email))
+        Disable2fa.clicked.connect(lambda:self.disable2faUI(topt,Email.text()))
 
         self.show()
 
-    def twoFactUI(self, Email):
+    def twoFactUI(self,topt, Email):
 
     
      
-        key = "HelloFortCryptoSecretKey"
-
-        topt = pyotp.TOTP(key)
+        
 
         # print(topt.now())
 
-        uri = pyotp.totp.TOTP(key).provisioning_uri(name=Email.text(), issuer_name="CryptoFortApp")
-        qrcode.make(uri).save("Logo/2fa.png")
+
 
 
         dialog = QDialog(self)
         dialog.setWindowTitle("2fa Code")
-        dialog.setFixedSize(500,600)
+        dialog.setFixedSize(550,600)
 
         layout = QVBoxLayout(dialog)
+        headerLayout = QHBoxLayout(dialog)
 
         label = QLabel(self)
         TextLabel = QLabel("Scan The Code On Your Google Auth App To Enable 2fa")
@@ -112,6 +141,7 @@ class UpdateAccount(QMainWindow):
         CodeInputLabel = QLabel("Enter Your Code: ")
         CodeInput = QLineEdit()
 
+        # Disable2fa = QPushButton("Disable 2fa")
         SubmitButton = QPushButton("Submit")
 
 
@@ -119,20 +149,85 @@ class UpdateAccount(QMainWindow):
         CodeInputLayout.addWidget(CodeInput)
         label.setPixmap(pixmap)
 
-        layout.addWidget(TextLabel)
+        headerLayout.addWidget(TextLabel)
+        # headerLayout.addWidget(Disable2fa, alignment=Qt.AlignmentFlag.AlignRight)
+
+        layout.addLayout(headerLayout)
         layout.addWidget(label)
         layout.addLayout(CodeInputLayout)
 
         layout.addWidget(SubmitButton,alignment=Qt.AlignmentFlag.AlignCenter)
-        SubmitButton.clicked.connect(lambda: self.twoFactSetup(CodeInput.text(),topt.now(), Email.text()))
-        
+        SubmitButton.clicked.connect(lambda: self.twoFactSetup(CodeInput.text(),topt,Email.text(), dialog))
+        # Disable2fa.clicked.connect(lambda: self.disable2faUI(topt,Email.text(), dialog))
         dialog.exec()
-    def twoFactSetup(self,codeinput, realcode, email):
+
+    def twoFactSetup(self,codeinput,topt,email, dialog: QDialog):
+        realcode = topt.now()
         if(codeinput == realcode):
-            print("correct code")
+           results = collection.find({"email": email})
+           
+           for data in results:
+               random_number = random.randint(000000, 999999)
+               collection.update_one(
+                    {"email": data["email"]},  
+                    {
+                        "$set": {
+                            "is_2fa_enabled": True,
+                            "2fa_backupcode": random_number
+                        }
+                    }
+                )
+               QMessageBox.information(self, "Success!", f"Your Backup Code is: {random_number}")
+               dialog.hide()
+               self.hide()
+
+    
         else:
-            return
+            QMessageBox.critical(self, "Error", "Wrong Code!")
         pass
+
+    def disable2faUI(self,topt,email):
+        InputDialog = QDialog(self)
+        InputDialog.setWindowTitle("Disable 2fa")
+        InputDialog.setFixedSize(400,100)
+        
+        layout = QHBoxLayout(InputDialog)
+        Vlayout = QHBoxLayout(InputDialog)
+        InputLabel = QLabel("Enter the code from your app: ")
+        Input = QLineEdit()
+        Submit = QPushButton("Submit")
+        layout.addWidget(InputLabel)
+        layout.addWidget(Input, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(Submit)
+        Submit.clicked.connect(lambda: self.check2fa(email,topt,Input.text(),InputDialog))
+
+        InputDialog.exec()
+
+    def check2fa(self,email,topt ,inputcode,InputDialog: QDialog):
+        realcode = topt.now()
+        if(inputcode == realcode):
+           results = collection.find({"email": email})
+           
+           for data in results:
+               random_number = random.randint(000000, 999999)
+               collection.update_one(
+                    {"email": data["email"]},  
+                    {
+                        "$set": {
+                            "is_2fa_enabled": False,
+                            "2fa_backupcode": ""
+                        }
+                    }
+                )
+               QMessageBox.information(self, "Success!", f"2fa Has Been Disabled!")
+               InputDialog.hide()
+               self.hide()
+        else:
+            QMessageBox.critical(self, "Error", "Wrong Code!")
+        pass
+
+
+
 
     def deleteAccountUI(self,Email):
         dialog = QDialog(self)
