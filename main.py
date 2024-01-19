@@ -261,18 +261,42 @@ class ModuleWindow(QMainWindow):
         widget3.setLayout(QVBoxLayout())
         widget3.layout().addWidget(Module3)
 
+        BottomLayout = QHBoxLayout()
+
+        ExitButton = QPushButton("Exit")
+        ExitButton.setFixedSize(25,25)
+        BottomLayout.addWidget(ExitButton, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        LogoutButton = QPushButton("Logout")
+        LogoutButton.setFixedSize(25,25)
+        BottomLayout.addWidget(LogoutButton, alignment=Qt.AlignmentFlag.AlignRight)
+
+
+
 
         layout.addLayout(HeaderLayout)
         layout.addWidget(widget1, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(widget2, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(widget3, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addLayout(BottomLayout)
 
         AccountInfo.clicked.connect(lambda: self.display_account_info_methods(Email))
         UpdateAccount.clicked.connect(lambda: self.display_update_account_methods(Email))
         Module1.clicked.connect(lambda: self.display_Encrypto_Module(Email.text()))
         Module2.clicked.connect(lambda: self.display_FManager_Module(Email.text()))
         Module3.clicked.connect(lambda: self.display_IPC_Module(Email.text()))
+        ExitButton.clicked.connect(self.handleExit)
+        LogoutButton.clicked.connect(self.handleLogout)
         self.show()
+    
+    def handleExit(self):
+        sys.exit()
+
+    def handleLogout(self):
+        self.hide()
+        self.Login = LoginWindow()
+        self.Login.show()
+
 
     def display_Encrypto_Module(self, Email):
         self.Encrypto = EncryptoWindow(Email)
