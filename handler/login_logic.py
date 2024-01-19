@@ -7,7 +7,7 @@ from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 import sys, random
 from handler.send_email import email_verification
 from dotenv import load_dotenv
-import os,pyotp
+import os,pyotp,requests
 load_dotenv()
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
@@ -17,6 +17,9 @@ collection = db["User_Details"]
 loginMessage = "InCorrect Password"
 VerificationMessage = "Wrong Code"
 
+def get_ip_address():
+    IP = requests.get("https://ipv4.icanhazip.com").text.strip()
+    return IP
 
 def loginLogic(eemail, epassword):
     
@@ -24,7 +27,10 @@ def loginLogic(eemail, epassword):
     password = epassword.text()
 
 
-
+    if email == "":
+        return "NoEmail"
+    if password == "":
+        return "NoEmail"
     count = collection.count_documents({"email": email})
    
     if count == 0:
@@ -36,76 +42,130 @@ def loginLogic(eemail, epassword):
             DecryptedPassword = data["password"]
             Encryptioncode = data ["Encryption_code"]
             Is2faEnabled = data["is_2fa_enabled"]
+            Last_LoggedIn_IP = data["Last_LoggedIn_IP"]
+            
             Password = enhancedEncryption(password, Encryptioncode)
 
             if DecryptedPassword == Password:
                 if (IsVerified):
-                    if(Is2faEnabled):
-                        Verify2fa = QDialog()
-                        Verify2fa.setStyleSheet("""
-            * {
-                color: #00FF00; 
-                background: #000000; 
-            }
+                    if(str(get_ip_address())==str(Last_LoggedIn_IP)):
+                        if(Is2faEnabled):
+                            Verify2fa = QDialog()
+                            Verify2fa.setStyleSheet("""
+                * {
+                    color: #00FF00; 
+                    background: #000000; 
+                }
 
-                           
-            Qlabel {
-            font-size: 3px
-            }
-                           
-                                       QPushButton {
-                border: 2px solid #00FF00; 
-                border-radius: 8px;
-                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                            stop: 0 #111111, stop: 0.5 #222222, stop: 1 #111111);
-                min-width: 100px;
-                font-size: 12px;
-                color: #00FF00; 
-            }
+                            
+                Qlabel {
+                font-size: 3px
+                }
+                            
+                                        QPushButton {
+                    border: 2px solid #00FF00; 
+                    border-radius: 8px;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                                stop: 0 #111111, stop: 0.5 #222222, stop: 1 #111111);
+                    min-width: 100px;
+                    font-size: 12px;
+                    color: #00FF00; 
+                }
 
-            QPushButton:hover {
-                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                            stop: 0 #222222, stop: 0.5 #111111, stop: 1 #222222);
-            }
+                QPushButton:hover {
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                                stop: 0 #222222, stop: 0.5 #111111, stop: 1 #222222);
+                }
 
-            QLabel {
-                color: #00FF00; 
-                font-size: 16px;
-                font-weight: bold;
-            }
+                QLabel {
+                    color: #00FF00; 
+                    font-size: 16px;
+                    font-weight: bold;
+                }
 
 
-        """)
-                        Verify2fa.setWindowTitle("User Verification")
-                        Verify2fa.setBaseSize(300,300)
+            """)
+                            Verify2fa.setWindowTitle("User Verification")
+                            Verify2fa.setBaseSize(300,300)
 
-                        layout = QVBoxLayout(Verify2fa)
+                            layout = QVBoxLayout(Verify2fa)
 
-                        FooterLayout = QHBoxLayout()
-                        HeaderLayout = QHBoxLayout()
+                            FooterLayout = QHBoxLayout()
+                            HeaderLayout = QHBoxLayout()
 
-                        titleLabel = QLabel("Enter the 2fa code: ")
-                        titeltext = QLineEdit()
-                        SubmitButton = QPushButton("Submit")
+                            titleLabel = QLabel("Enter the 2fa code: ")
+                            titeltext = QLineEdit()
+                            SubmitButton = QPushButton("Submit")
 
-                        HeaderLayout.addWidget(titleLabel)
-                        HeaderLayout.addWidget(titeltext)
-                        FooterLayout.addWidget(SubmitButton, alignment=Qt.AlignmentFlag.AlignCenter)
+                            HeaderLayout.addWidget(titleLabel)
+                            HeaderLayout.addWidget(titeltext)
+                            FooterLayout.addWidget(SubmitButton, alignment=Qt.AlignmentFlag.AlignCenter)
 
-                        layout.addLayout(HeaderLayout)
-                        layout.addLayout(FooterLayout)
-                        SubmitButton.clicked.connect(lambda: authCheck(email,titeltext,Verify2fa))
-                        Verify2fa.exec()
-                        
-                        
+                            layout.addLayout(HeaderLayout)
+                            layout.addLayout(FooterLayout)
+                            SubmitButton.clicked.connect(lambda: authCheck(email,titeltext,Verify2fa))
+                            Verify2fa.exec()
+                            
+                            
 
-                        
-                        
-                        if (loginMessage == "Correct Password"):
-                            return "Correct Password"
+                            
+                            
+                            if (loginMessage == "Correct Password"):
+                                return "Correct Password"
+                            else:
+                                dialog = QInputDialog()
+                                dialog.setStyleSheet("""
+                * {
+                    color: #00FF00; 
+                    background: #000000; 
+                }
+
+                            
+                Qlabel {
+                font-size: 3px
+                }
+                            
+                                        QPushButton {
+                    border: 2px solid #00FF00; 
+                    border-radius: 8px;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                                stop: 0 #111111, stop: 0.5 #222222, stop: 1 #111111);
+                    min-width: 100px;
+                    font-size: 12px;
+                    color: #00FF00; 
+                }
+
+                QPushButton:hover {
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                                stop: 0 #222222, stop: 0.5 #111111, stop: 1 #222222);
+                }
+
+                QLabel {
+                    color: #00FF00; 
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+
+
+            """)
+                                QMessageBox.information(dialog, "Wrong Code", "Please Try Again")
+
                         else:
-                            dialog = QInputDialog()
-                            dialog.setStyleSheet("""
+                            return "Correct Password"
+                    else:
+                        random_number = random.randint(000000, 999999)
+                        email_verification(email,random_number)
+                        collection.update_one(
+                            {"email": data["email"]},  
+                            {
+                                "$set": {
+                                    "is_Verified": False,
+                                    "Verification_code": random_number
+                                }
+                            }
+                        )
+                        dialog = QInputDialog()
+                        dialog.setStyleSheet("""
             * {
                 color: #00FF00; 
                 background: #000000; 
@@ -139,11 +199,8 @@ def loginLogic(eemail, epassword):
 
 
         """)
-                            QMessageBox.information(dialog, "Wrong Code", "Please Try Again")
-
-                    else:
-                        return "Correct Password"
-
+                        QMessageBox.information(dialog, "New Location Detected", "Please Check Your Email For The Verification Code and ReLogin")
+                        dialog.accept()
                 else:
                     NotVerified = QDialog()
                     NotVerified.setStyleSheet("""
@@ -212,7 +269,7 @@ def loginLogic(eemail, epassword):
                     NotVerified.exec()
 
                     if VerificationMessage == "Correct Password":
-                        return "Correct Password"
+                        pass
                     else:
                         return "Error"
 
@@ -250,7 +307,7 @@ def codeCheck(email, InputCode,NotVerified: QDialog):
             if (int(InputCode.text()) == int(Code)):
                 dialog = QInputDialog()
                 QMessageBox.information(dialog, "Verification Success", "Account Verified Successfully!")
-                collection.update_one({"email": email},{"$set": {"is_Verified": "True"}})
+                collection.update_one({"email": email},{"$set": {"is_Verified": True, "Last_LoggedIn_IP":get_ip_address()}})
                 VerificationMessage = "Correct Password"
                 NotVerified.accept()
 

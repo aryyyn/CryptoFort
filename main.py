@@ -436,6 +436,13 @@ class LoginWindow(QMainWindow):
        elif(LoginResult == "Error"):
            InvalidResult = PromptDialog("Error!", "There Has Been An Error!")
            InvalidResult.exec()  
+       elif(LoginResult == "InvalidIP"):
+           InvalidIP = PromptDialog("Invalid IP!", "IPS Do Not Match")
+           InvalidIP.exec()
+       elif(LoginResult == "NoEmail"):
+           Empty = PromptDialog("Empty Input Found", "Email/Password Can't Be Empty")
+           Empty.exec()
+         
        elif(LoginResult == "Correct Password"):
            self.hide()
            self.MM = ModuleWindow(self.loginInput)
