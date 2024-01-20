@@ -106,12 +106,11 @@ class UpdateAccount(QMainWindow):
         for data in results:
             # print("checking")
             if (data["is_2fa_enabled"]):
-                print(data["is_2fa_enabled"])
-                Enable2fa.setDisabled(True)
-                Disable2fa.setDisabled(False)
+                Enable2fa.setVisible(False)
+                Disable2fa.setVisible(True)
             else:
-                Enable2fa.setDisabled(False)
-                Disable2fa.setDisabled(True)
+                Enable2fa.setVisible(True)
+                Disable2fa.setVisible(False)
             
         UpdatePassword.clicked.connect(lambda: self.changePasswordUI(Email))
         DeleteAccount.clicked.connect(lambda: self.deleteAccountUI(Email))
