@@ -87,6 +87,9 @@ def registerLogic(eemail,epassword,erepassword):
         
 
         try:
+            logs_collection = db["User_Logs"]
+            logs_entry = {"username": email.lower(), "logs": ["User logs:"]}
+            logs_collection.insert_one(logs_entry)
             epoch = str(time.time())
             EncryptionCode = epoch.split('.')[1]
             EncryptionCode+=EncryptionCode

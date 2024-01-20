@@ -8,6 +8,7 @@ import sys, random
 from handler.send_email import email_verification
 from dotenv import load_dotenv
 import os,pyotp,requests
+from datetime import datetime
 load_dotenv()
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
@@ -20,6 +21,11 @@ VerificationMessage = "Wrong Code"
 def get_ip_address():
     IP = requests.get("https://ipv4.icanhazip.com").text.strip()
     return IP
+
+def user_login_logs(email):
+    logs_collection = db["User_Logs"]
+    log_entry = f"User logged in at {datetime.now()} with IP address {get_ip_address()}"
+    logs_collection.update_one({"username": email}, {"$push": {"logs": log_entry}})
 
 def loginLogic(eemail, epassword):
     
@@ -111,6 +117,7 @@ def loginLogic(eemail, epassword):
                             
                             
                             if (loginMessage == "Correct Password"):
+                                user_login_logs(email)
                                 return "Correct Password"
                             else:
                                 dialog = QInputDialog()
@@ -151,6 +158,7 @@ def loginLogic(eemail, epassword):
                                 QMessageBox.information(dialog, "Wrong Code", "Please Try Again")
 
                         else:
+                            user_login_logs(email)
                             return "Correct Password"
                     else:
                         random_number = random.randint(000000, 999999)
