@@ -23,6 +23,7 @@ from Modules.IPC import IPCWindow
 from handler.forget_password import ForgetPassword
 import pymongo
 from datetime import datetime
+from Admin.adminUI import AdminWindow
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
 db = client["CryptoFort"] 
@@ -479,10 +480,15 @@ class LoginWindow(QMainWindow):
            Empty.exec()
          
        elif(LoginResult == "Correct Password"):
-           self.hide()
-           self.MM = ModuleWindow(self.loginInput)
-           self.MM.show() 
-           
+           if (str(self.loginInput.text()) == str("admin")):
+               self.hide()
+               self.Admin = AdminWindow(self.loginInput)
+               self.Admin.show()
+           else:
+            self.hide()
+            self.MM = ModuleWindow(self.loginInput)
+            self.MM.show() 
+            
            
        
 

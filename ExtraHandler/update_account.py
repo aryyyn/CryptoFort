@@ -300,7 +300,7 @@ class UpdateAccount(QMainWindow):
            
 
     def changePasswordUI(self, Email):
-        logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users clicks on the change password button at {datetime.now()}"}})
+        logs_collection.update_one({"username":Email.text()}, {"$push": {"logs": f"Users clicks on the change password button at {datetime.now()}"}})
         dialog = QDialog(self)
         dialog.setWindowTitle("Update Your Password")
         dialog.setBaseSize(300,300)

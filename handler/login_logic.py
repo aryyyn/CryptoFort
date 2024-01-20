@@ -9,6 +9,7 @@ from handler.send_email import email_verification
 from dotenv import load_dotenv
 import os,pyotp,requests
 from datetime import datetime
+
 load_dotenv()
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
