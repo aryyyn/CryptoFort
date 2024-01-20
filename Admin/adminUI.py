@@ -9,12 +9,18 @@ from PyQt6.QtWidgets import (
     QDialog,
     QTextEdit,
     QHBoxLayout,
+    QMessageBox,
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
-import sys,pymongo
+import sys,pymongo,os
 from datetime import datetime
 
+
+client = pymongo.MongoClient("mongodb://localhost:27017/")
+db = client["CryptoFort"] 
+logs_collection = db["User_Logs"]
+user_data = db["User_Details"]
 
 class AdminWindow(QMainWindow):
     def __init__(self, Email):
@@ -100,16 +106,139 @@ class AdminWindow(QMainWindow):
         Button2.clicked.connect(lambda: self.updateUserInfo())
         Button3.clicked.connect(lambda: self.showUserLogs())
         LogoutButton.clicked.connect(lambda: self.Logout())
-
-        
-
         self.show()
 
     def showUserInfo(self):
-        print("working1")
+        dialog = QDialog(self)
+        dialog.setBaseSize(800,800)
+        dialog.setWindowTitle("CryptoFort | Show User Info")
+        layout = QVBoxLayout(dialog)
+        Headerlayout = QHBoxLayout(dialog)
+
+        HeaderLabel = QLabel("Enter Email: ")
+        EmailInput = QLineEdit()
+
+        Headerlayout.addWidget(HeaderLabel)
+        Headerlayout.addWidget(EmailInput)
+
+        SearchButton = QPushButton("Search")
+        SearchButton.setFixedSize(50,25)
+
+
+        InputBox = QTextEdit()
+        InputBox.setPlaceholderText("User Data Output")
+        InputBox.setFixedHeight(350)
+        InputBox.setFixedWidth(350)
+
+        layout.addLayout(Headerlayout)
+        layout.addWidget(SearchButton, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(InputBox)
+
+        SearchButton.clicked.connect(lambda: self.userDataAction(EmailInput.text(), InputBox))
+
+        dialog.exec()
+
+    def userDataAction(self,email, InputBox: QTextEdit):
+        if (str(email) == ""):
+            QMessageBox.information(self, "Failure!", f"Please Enter An Email")
+            return
+        else:
+            user_d = user_data.find({"email": email})
+            if user_d:
+                for data in user_d:
+                    Registration_IP = data["Registration_IP"]
+                    Last_LoggedIn_IP = data["Last_LoggedIn_IP"]
+                    DateAndTime_OF_Registration = data["Date&Time_OF_Registration"]
+                    isVerified = data["is_Verified"]
+                    is2faEnabled = data["is_2fa_enabled"]
+
+                # Registration_IP = user_d.get("Registration_IP")
+                # Last_LoggedIn_IP = user_d.get("Last_LoggedIn_IP")
+                # DateAndTime_OF_Registration = user_d.get("Date&Time_OF_Registration")
+                # isVerified = user_d.get("is_Verified")
+                # is2faEnabled = user_d.get("is_2fa_enabled")
+                
+                InputBox.setText(f"Email: {email}\nRegistration_IP:{Registration_IP}\nLast_LoggedIn_IP:{Last_LoggedIn_IP}\nDateAndTime_OF_Registration:{DateAndTime_OF_Registration}\nisVerified:{isVerified}\nis2faEnabled:{is2faEnabled}")
+
+
+
+            else:
+                QMessageBox.information(self, "Failure!", f"No data Found with email: {email}")
+                return
+
+
+        pass
+
     def updateUserInfo(self):
-        print("working2")
+        dialog = QDialog(self)
+        dialog.setFixedSize(300,300)
+        dialog.setWindowTitle("CryptoFort | Update User Info")
+        dialog.exec()
+
     def showUserLogs(self):
-        print("working3")
+        dialog = QDialog(self)
+        dialog.setBaseSize(800,500)
+        dialog.setWindowTitle("CryptoFort | UserLogs")
+
+        layout = QVBoxLayout(dialog)
+        Headerlayout = QHBoxLayout(dialog)
+
+        HeaderLabel = QLabel("Enter Email: ")
+        EmailInput = QLineEdit()
+
+        Headerlayout.addWidget(HeaderLabel)
+        Headerlayout.addWidget(EmailInput)
+
+        SearchButton = QPushButton("Search")
+        SearchButton.setFixedSize(50,25)
+
+        SaveButton = QPushButton("Save Data")
+        SaveButton.setFixedSize(50,25)
+
+        InputBox = QTextEdit()
+        InputBox.setPlaceholderText("Log Data Output")
+        InputBox.setFixedHeight(600)
+        InputBox.setFixedWidth(600)
+
+        
+
+        layout.addLayout(Headerlayout)
+        layout.addWidget(SearchButton, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(InputBox)
+        layout.addWidget(SaveButton, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        SearchButton.clicked.connect(lambda: self.userLogsAction(EmailInput.text(),InputBox, SaveButton))
+        SaveButton.setVisible(False)
+        dialog.exec()
+
+    def userLogsAction(self, email, InputBox: QTextEdit, SaveButton = QPushButton):
+        if (str(email) == ""):
+            QMessageBox.information(self, "Failure!", f"Please Enter An Email")
+            return
+        else:
+            user_logs = logs_collection.find_one({"username": email})
+            if(user_logs):
+                SaveButton.setVisible(True)
+                SaveButton.clicked.connect(lambda: self.saveLogsAction(email, user_logs))
+                Logs = user_logs.get("logs", [])
+
+                for log_entry in Logs:
+                    InputBox.append(log_entry)
+            else:
+                QMessageBox.information(self, "Failure!", f"No data Found with email: {email}")
+                return
+            
+    def saveLogsAction(self, email, user_logs):
+        Logs = user_logs.get("logs", [])
+
+        os.makedirs("Logs", exist_ok=True)
+
+        with open(f"Logs/{email}_logs.txt", "w") as file:
+            for log_entry in Logs:
+                file.write(f"{log_entry}\n")
+        QMessageBox.information(self, "Success!", f"Saved Logs for Email: {email} in {email}_logs.txt")
+
+            
+
     def Logout(self):
         sys.exit()
