@@ -15,6 +15,8 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 import sys,pymongo,os
 from datetime import datetime
+from handler.showPassword import togglePassword
+from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -143,20 +145,20 @@ class AdminWindow(QMainWindow):
             QMessageBox.information(self, "Failure!", f"Please Enter An Email")
             return
         else:
-            user_d = user_data.find({"email": email})
-            if user_d:
-                for data in user_d:
-                    Registration_IP = data["Registration_IP"]
-                    Last_LoggedIn_IP = data["Last_LoggedIn_IP"]
-                    DateAndTime_OF_Registration = data["Date&Time_OF_Registration"]
-                    isVerified = data["is_Verified"]
-                    is2faEnabled = data["is_2fa_enabled"]
+            user_d = user_data.find_one({"email": email})
+            if (user_d):
+       
+                    # Registration_IP = data["Registration_IP"]
+                    # Last_LoggedIn_IP = data["Last_LoggedIn_IP"]
+                    # DateAndTime_OF_Registration = data["Date&Time_OF_Registration"]
+                    # isVerified = data["is_Verified"]
+                    # is2faEnabled = data["is_2fa_enabled"]
 
-                # Registration_IP = user_d.get("Registration_IP")
-                # Last_LoggedIn_IP = user_d.get("Last_LoggedIn_IP")
-                # DateAndTime_OF_Registration = user_d.get("Date&Time_OF_Registration")
-                # isVerified = user_d.get("is_Verified")
-                # is2faEnabled = user_d.get("is_2fa_enabled")
+                Registration_IP = user_d.get("Registration_IP")
+                Last_LoggedIn_IP = user_d.get("Last_LoggedIn_IP")
+                DateAndTime_OF_Registration = user_d.get("Date&Time_OF_Registration")
+                isVerified = user_d.get("is_Verified")
+                is2faEnabled = user_d.get("is_2fa_enabled")
                 
                 InputBox.setText(f"Email: {email}\nRegistration_IP:{Registration_IP}\nLast_LoggedIn_IP:{Last_LoggedIn_IP}\nDateAndTime_OF_Registration:{DateAndTime_OF_Registration}\nisVerified:{isVerified}\nis2faEnabled:{is2faEnabled}")
 
@@ -171,9 +173,127 @@ class AdminWindow(QMainWindow):
 
     def updateUserInfo(self):
         dialog = QDialog(self)
-        dialog.setFixedSize(300,300)
+        dialog.setBaseSize(800,500)
         dialog.setWindowTitle("CryptoFort | Update User Info")
+
+        layout = QVBoxLayout(dialog)
+        Headerlayout = QHBoxLayout(dialog)
+        Footerlayout = QHBoxLayout(dialog)
+
+        HeaderLabel = QLabel("Enter Email: ")
+        EmailInput = QLineEdit()
+        EmailInput.setFixedWidth(200)
+
+        Headerlayout.addWidget(HeaderLabel)
+        Headerlayout.addWidget(EmailInput)
+
+        SearchButton = QPushButton("Search")
+        SearchButton.setFixedSize(25,50)
+
+        EmailFoundLabel = QLabel("Email Found")
+        EmailFoundLabel.setVisible(False)
+        EmailFoundLabel.setFixedSize(100,50)
+
+        UpdatePasswordButton = QPushButton("Update Password")
+        UpdatePasswordButton.setFixedSize(100,50)
+        UpdatePasswordButton.setVisible(False)
+
+        DeleteAccountButton = QPushButton("Delete Account")
+        DeleteAccountButton.setFixedSize(100,50)
+        DeleteAccountButton.setVisible(False)
+
+        Footerlayout.addWidget(UpdatePasswordButton)
+        Footerlayout.addWidget(DeleteAccountButton)
+
+
+
+
+        layout.addLayout(Headerlayout)
+        layout.addWidget(SearchButton,alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(EmailFoundLabel,alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addLayout(Footerlayout)
+
+        SearchButton.clicked.connect(lambda: self.userSearchAction(EmailInput.text(), UpdatePasswordButton, DeleteAccountButton,EmailFoundLabel))
         dialog.exec()
+
+    def userSearchAction(self, email, UpdatePasswordButton: QPushButton, DeleteAccountButton: QPushButton,EmailFoundLabel: QLabel):
+        if (str(email) == ""):
+            QMessageBox.information(self, "Failure!", f"Please Enter An Email")
+            return
+        else:
+            user_logs = user_data.find_one({"email": email})
+            if (user_logs):
+                EmailFoundLabel.setVisible(True)
+                UpdatePasswordButton.setVisible(True)
+                DeleteAccountButton.setVisible(True)
+                UpdatePasswordButton.clicked.connect(lambda: self.UpdatePasswordActionUI(email))
+                DeleteAccountButton.clicked.connect(lambda: self.DeleteAccountAction(email))
+            else:
+                QMessageBox.information(self, "Failure!", f"No data Found with email: {email}")
+                return
+
+    def DeleteAccountAction(self,email):
+        dlg = QMessageBox(self)
+        dlg.setWindowTitle("Confirmation")
+        dlg.setText(f"Are you sure that you want to delete this account with email: {email}?")
+        dlg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        dlg.setIcon(QMessageBox.Icon.Question)
+        button = dlg.exec()
+        if(button == QMessageBox.StandardButton.Yes):
+            result = user_data.delete_one({"email": email})
+            if (result.deleted_count > 0):
+                QMessageBox.information(self, "Success!", f"Account with the email {email} has been deleted.")
+            else:
+                QMessageBox.information(self, "Failure!", f"Failed to delete")
+        else:
+            return
+
+        
+
+    def UpdatePasswordActionUI(self,email):
+        dialog = QDialog(self)
+        dialog.setBaseSize(800,500)
+        dialog.setWindowTitle("Pick A Password")
+
+        layout = QVBoxLayout(dialog)
+        PasswordLayout = QHBoxLayout(dialog)
+
+        registerpasslabel = QLabel("Password: ")
+        registerpassword = QLineEdit()
+        registerpassword.setFixedHeight(30)
+        registerpassword.setPlaceholderText("Enter your password")
+        registerpassword.setEchoMode(QLineEdit.EchoMode.Password)
+        showregisterpassword = QPushButton("SHOW")
+        showregisterpassword.setFixedSize(50, 25)
+        submitbutton = QPushButton("Submit")
+        submitbutton.setFixedSize(50,25)
+
+        PasswordLayout.addWidget(registerpasslabel)
+        PasswordLayout.addWidget(registerpassword)
+        PasswordLayout.addWidget(showregisterpassword)
+
+        showregisterpassword.clicked.connect(lambda: togglePassword(registerpassword, showregisterpassword))
+        submitbutton.clicked.connect(lambda: self.UpdatePasswordAction(email, registerpassword.text(),dialog))
+        layout.addLayout(PasswordLayout)
+        layout.addWidget(submitbutton, alignment=Qt.AlignmentFlag.AlignCenter)
+        dialog.exec()
+
+    def UpdatePasswordAction(self,email, password,dialog:QDialog):
+        result = user_data.find_one({"email": email}) 
+        Encryptioncode = result.get("Encryption_code")
+        NewPassInput = enhancedEncryption(password, Encryptioncode)
+
+        UpdatePassword = user_data.update_one({"email":email},
+        {"$set": {"password": NewPassInput }})
+
+        if UpdatePassword.modified_count > 0:
+            QMessageBox.information(self, "Success!", "Password Has Been Changed Successfully.")
+            
+        else:
+            QMessageBox.information(self, "Error!", "An Internal Error Has Occurred.\nPlease Try Again Later.")
+            
+
+        
 
     def showUserLogs(self):
         dialog = QDialog(self)
