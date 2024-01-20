@@ -21,6 +21,12 @@ from Modules.Encrypto import EncryptoWindow
 from Modules.FManager import FManagerWindow
 from Modules.IPC import IPCWindow
 from handler.forget_password import ForgetPassword
+import pymongo
+from datetime import datetime
+
+client = pymongo.MongoClient("mongodb://localhost:27017/")  
+db = client["CryptoFort"] 
+logs_collection = db["User_Logs"]
 
 class PromptDialog(QDialog):
     def __init__(self, title, description, parent=None):
@@ -299,22 +305,27 @@ class ModuleWindow(QMainWindow):
 
 
     def display_Encrypto_Module(self, Email):
+        logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User clicks on the Encrypto module at  {datetime.now()}"}})
         self.Encrypto = EncryptoWindow(Email)
         self.Encrypto.show()
 
     def display_FManager_Module(self, Email):
+        logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User clicks on the FManager module at  {datetime.now()}"}})
         self.FManager = FManagerWindow(Email)
         self.FManager.show()
 
     def display_IPC_Module(self, Email):
+        logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User clicks on the IPC module at  {datetime.now()}"}})
         self.IPC = IPCWindow(Email)
         self.IPC.show()
         
     def display_account_info_methods(self, Email):
+        logs_collection.update_one({"username": Email.text()}, {"$push": {"logs": f"User clicks on the account_info module at  {datetime.now()}"}})
         self.AI = AccountInfo(Email)
         self.AI.show()
 
     def display_update_account_methods(self, Email):
+        logs_collection.update_one({"username": Email.text()}, {"$push": {"logs": f"User clicks on the update_account module at  {datetime.now()}"}})
         self.UA = UpdateAccount(Email)
         self.UA.show()
 

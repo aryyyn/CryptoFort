@@ -13,6 +13,12 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 import pymongo
 
+
+client = pymongo.MongoClient("mongodb://localhost:27017/")  
+db = client["CryptoFort"] 
+collection = db["User_Details"]
+logs_collection = db["User_Logs"]
+
 class AccountInfo(QMainWindow):
     def __init__(self, Email):
         super().__init__()
@@ -44,10 +50,6 @@ class AccountInfo(QMainWindow):
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout(central_widget)
-
-        client = pymongo.MongoClient("mongodb://localhost:27017/")  
-        db = client["CryptoFort"] 
-        collection = db["User_Details"]
 
         EmailText = "Email: " + Email.text()
 

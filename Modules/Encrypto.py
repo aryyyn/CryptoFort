@@ -12,8 +12,13 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
-import sys
+import sys,pymongo
+from datetime import datetime
 from Algorithm.ceaser_cipher import simpleEcnryption, SimpleDecription
+
+client = pymongo.MongoClient("mongodb://localhost:27017/")  
+db = client["CryptoFort"] 
+logs_collection = db["User_Logs"]
 
 
 class EncryptoWindow(QMainWindow):
@@ -22,6 +27,7 @@ class EncryptoWindow(QMainWindow):
         self.init_ui(Email)
 
     def init_ui(self,Email):
+        
         self.setFixedSize(700, 700)
         self.setWindowTitle("CryptoFort | Encyrpto")
         icon = QIcon("logo/logo.png")
@@ -99,19 +105,21 @@ class EncryptoWindow(QMainWindow):
         layout.addLayout(ButtonLayout)
         layout.addWidget(OutputBox)
 
-        Encrypt.clicked.connect(lambda: self.EncryptText(InputBox.toPlainText(), OutputBox))
-        Decrypt.clicked.connect(lambda: self.DecryptText(InputBox.toPlainText(), OutputBox) )
+        Encrypt.clicked.connect(lambda: self.EncryptText(Email,InputBox.toPlainText(), OutputBox))
+        Decrypt.clicked.connect(lambda: self.DecryptText(Email,InputBox.toPlainText(), OutputBox) )
 
         
         
 
         self.show()
 
-    def EncryptText(self, TextToEncrypt, OutputBox : QTextEdit):
+    def EncryptText(self, Email, TextToEncrypt, OutputBox : QTextEdit):
+        logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User encrypts a text from the Encrypto Module at {datetime.now()}"}})
         EncryptedText = simpleEcnryption(TextToEncrypt)
         OutputBox.setText(EncryptedText)
 
-    def DecryptText(self, TextToDecrypt, OutputBox: QTextEdit):
+    def DecryptText(self, Email,TextToDecrypt, OutputBox: QTextEdit):
+        logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User decrypts a text from the Encrypto Module at {datetime.now()}"}})
         DecryptedText = SimpleDecription(TextToDecrypt)
         OutputBox.setText(DecryptedText)
         

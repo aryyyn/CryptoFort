@@ -19,10 +19,12 @@ import sys,pymongo, os, time
 from gridfs import GridFS
 from bson.binary import Binary
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
+from datetime import datetime
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
 db = client["CryptoFort"]
 collection = db["File_Details"]
+logs_collection = db["User_Logs"]
 
 class FManagerWindow(QMainWindow):
     def __init__(self, Email):
@@ -131,6 +133,7 @@ class FManagerWindow(QMainWindow):
                 basefilename = os.path.basename(filename)
 
                 if (filesize > 16793598):
+                    logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User fails to upload file due to file size limit at {datetime.now()}"}})
                     QMessageBox.critical(self, "File too large!", "The Limit is 16mb.")
                     return
                 
@@ -161,6 +164,7 @@ class FManagerWindow(QMainWindow):
                         }
 
                         result = collection.insert_one(document)
+                        logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User uploads their file to the database at {datetime.now()}"}})
                         QMessageBox.information(self,"Success!","Your File Has Been Uploaded!")
                         FileInfoLabel.setText(f"Current File In Database: {basefilename}")
                 else:
@@ -186,15 +190,18 @@ class FManagerWindow(QMainWindow):
             encrypted_password = enhancedEncryption(password, EncryptionCode) 
 
             if (encrypted_password != encrypted_db_password):
+                logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User fails to match passwords while deleting file from database at {datetime.now()}"}})
                 QMessageBox.critical(self, "Error", "Passwords do not match!")
                 return
             
             result = collection.delete_one({"email": Email})
             if (result.deleted_count > 0):
                 FileInfoLabel.setText("No File Uploaded")
+                logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User deletes the uploaded file at {datetime.now()}"}})
                 QMessageBox.critical(self, "Success", "File has been deleted successfully!")
 
             else:
+                logs_collection.update_one({"username": Email}, {"$push": {"logs": f"internal server error at {datetime.now()}"}})
                 QMessageBox.critical(self, "Error", "An Internal Error Has Occurred!\nPlease Try Again Later")
                 return "Internal Error Has Occurred"
             
@@ -202,6 +209,7 @@ class FManagerWindow(QMainWindow):
     def getCurrentFile(self,Email):
         count = collection.count_documents({"email": Email})
         if(count == 0):
+            logs_collection.update_one({"username": Email}, {"$push": {"logs": f"No file found for user in FManager Module at {datetime.now()}"}})
             QMessageBox.critical(self, "Error", "No File Found")
             return
         
@@ -215,6 +223,7 @@ class FManagerWindow(QMainWindow):
             encrypted_password = enhancedEncryption(password, EncryptionCode) 
 
             if (encrypted_password != encrypted_db_password):
+                logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User fails to mactch passwords while retrieving file from database at {datetime.now()}"}})
                 QMessageBox.critical(self, "Error", "Passwords do not match!")
                 return
             
@@ -224,8 +233,10 @@ class FManagerWindow(QMainWindow):
                 try:
                     with open(filepath, 'wb') as file:
                         file.write(filecontent)
+                    logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User retrieves file at {datetime.now()}"}})
                     QMessageBox.information(self, "Success", "File Saved Successfully")
                 except Exception as err:
+                    logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User fails to save retrieved file at {datetime.now()}"}})
                     QMessageBox.critical(self, "Error", f"Failed to save file: {err}")
             
             

@@ -14,6 +14,7 @@ load_dotenv()
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
 db = client["CryptoFort"] 
 collection = db["User_Details"]
+logs_collection = db["User_Logs"]
 
 loginMessage = "InCorrect Password"
 VerificationMessage = "Wrong Code"
@@ -23,7 +24,6 @@ def get_ip_address():
     return IP
 
 def user_login_logs(email):
-    logs_collection = db["User_Logs"]
     log_entry = f"User logged in at {datetime.now()} with IP address {get_ip_address()}"
     logs_collection.update_one({"username": email}, {"$push": {"logs": log_entry}})
 
@@ -40,6 +40,7 @@ def loginLogic(eemail, epassword):
     count = collection.count_documents({"email": email})
    
     if count == 0:
+        logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid email at {datetime.now()}"}})
         return "No Email Found"
     else:
         results = collection.find({"email": email})
@@ -282,13 +283,16 @@ def loginLogic(eemail, epassword):
                         return "Error"
 
             else:
-                
+                logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
                 return "InCorrect Password"
             
                 
 
                 
 def authCheck(email, InputCode,Verify2fa: QDialog):
+    log_entry = f"User is asked for 2fa verification at {datetime.now()}"
+    logs_collection.update_one({"username": email}, {"$push": {"logs": log_entry}})
+
     global loginMessage
     results = collection.find({"email": email})
     for data in results:
@@ -298,9 +302,11 @@ def authCheck(email, InputCode,Verify2fa: QDialog):
     RealCode = topt.now()
     InputCode = InputCode.text()
     if(str(InputCode) == str(RealCode) or str(InputCode) == str(backupcode)):
+        logs_collection.update_one({"username": email}, {"$push": {"logs": f"User inserted a correct 2fa code {RealCode} at {datetime.now()}"}})
         loginMessage = "Correct Password"
         Verify2fa.accept()
     else:
+        logs_collection.update_one({"username": email}, {"$push": {"logs": f"User fails to enter the 2fa code at {datetime.now()}"}})
         loginMessage = "ReCheck Code"
         Verify2fa.accept()
     pass
@@ -308,12 +314,14 @@ def authCheck(email, InputCode,Verify2fa: QDialog):
 
 def codeCheck(email, InputCode,NotVerified: QDialog):
     try:
+        logs_collection.update_one({"username": email}, {"$push": {"logs": f"User is checked for the verification code at {datetime.now()}"}})
         results = collection.find({"email": email})
         global VerificationMessage
         for data in results:
             Code = data["Verification_code"]
             if (int(InputCode.text()) == int(Code)):
                 dialog = QInputDialog()
+                logs_collection.update_one({"username": email}, {"$push": {"logs": f"User's account is verified at {datetime.now()}"}})
                 QMessageBox.information(dialog, "Verification Success", "Account Verified Successfully!")
                 collection.update_one({"email": email},{"$set": {"is_Verified": True, "Last_LoggedIn_IP":get_ip_address()}})
                 VerificationMessage = "Correct Password"
@@ -356,6 +364,7 @@ def codeCheck(email, InputCode,NotVerified: QDialog):
 
 
         """)
+                logs_collection.update_one({"username": email}, {"$push": {"logs": f"User inserts a wrong code at {datetime.now()}"}})
                 QMessageBox.information(dialog, "Error", "Wrong Code")
             
     except Exception as err:
@@ -394,11 +403,13 @@ def codeCheck(email, InputCode,NotVerified: QDialog):
 
 
         """)
+        logs_collection.update_one({"username": email}, {"$push": {"logs": f"User encounters an unknown error at {datetime.now()}"}})
         QMessageBox.information(dialog, "Error", "There Has Been An Error While Processing Your Request\nPlease Try Again")
             
 
 def resendCode(email):
     try:
+        logs_collection.update_one({"username": email}, {"$push": {"logs": f"User clicks on the reset code at {datetime.now()}"}})
         random_number = random.randint(000000, 999999)
         results = collection.find({"email": email})
         for data in results:
@@ -439,6 +450,7 @@ def resendCode(email):
 
         """)
             email_verification(email,random_number)
+            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User receives a code {random_number} in their email at {datetime.now()}"}})
             QMessageBox.information(dialog, "Code Reset Successful", "Please Check Your Email For The New Code")
 
     except Exception as err:
@@ -477,6 +489,7 @@ def resendCode(email):
 
 
         """)
+        logs_collection.update_one({"username": email}, {"$push": {"logs": f"User encounters an unknown error at {datetime.now()}"}})
         QMessageBox.information(dialog, err, "There Has Been An Error While Processing Your Request\nPlease Try Again")
 
 

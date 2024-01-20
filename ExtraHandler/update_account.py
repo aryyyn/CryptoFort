@@ -18,12 +18,14 @@ import pymongo,time,sys
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 import time,pyotp,qrcode
 from dotenv import load_dotenv
-import os
+import os,requests
+from datetime import datetime
 load_dotenv()
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
 db = client["CryptoFort"] 
 collection = db["User_Details"]
+logs_collection = db["User_Logs"]
 
 
 
@@ -120,7 +122,7 @@ class UpdateAccount(QMainWindow):
 
     def twoFactUI(self,topt, Email):
 
-
+        logs_collection.update_one({"username": Email.text()}, {"$push": {"logs": f"Users clicks on the enable 2fa button at {datetime.now()}"}})
         dialog = QDialog(self)
         dialog.setWindowTitle("2fa Code")
         dialog.setFixedSize(550,600)
@@ -173,18 +175,22 @@ class UpdateAccount(QMainWindow):
                                 }
                             }
                         )
+                    logs_collection.update_one({"username": email}, {"$push": {"logs": f"Users enables 2fa with backup code {random_number} at {datetime.now()}"}})
                     QMessageBox.information(self, "Success!", f"2fa Enabled!\nYour Backup Code is: {random_number}")
                     dialog.hide()
                     self.hide()
 
         
             else:
+                logs_collection.update_one({"username": email}, {"$push": {"logs": f"Users enters an invalid 2fa code at {datetime.now()}"}})
                 QMessageBox.critical(self, "Error", "Wrong Code!")
             
         except Exception as err:
+            logs_collection.update_one({"username":email}, {"$push": {"logs": f"Users enounters an internal server error at {datetime.now()}"}})
             QMessageBox.information(self, "Error!", f"There has been an error: {err}")
 
     def disable2faUI(self,topt,email):
+        logs_collection.update_one({"username":email}, {"$push": {"logs": f"Users clicks on the disable 2fa button at {datetime.now()}"}})
         InputDialog = QDialog(self)
         InputDialog.setWindowTitle("Disable 2fa")
         InputDialog.setFixedSize(600,100)
@@ -223,10 +229,12 @@ class UpdateAccount(QMainWindow):
                                 }
                             }
                         )
+                    logs_collection.update_one({"username":email}, {"$push": {"logs": f"Users disables 2fa on their account at {datetime.now()}"}})
                     QMessageBox.information(self, "Success!", f"2fa Has Been Disabled!")
                     InputDialog.hide()
                     self.hide()
             else:
+                logs_collection.update_one({"username":email}, {"$push": {"logs": f"Users enters an invalid code {inputcode} while disabling 2fa at {datetime.now()}"}})
                 QMessageBox.critical(self, "Error", "Wrong Code!")
 
         except Exception as err:
@@ -235,6 +243,7 @@ class UpdateAccount(QMainWindow):
         
 
     def deleteAccountUI(self,Email):
+        logs_collection.update_one({"username":Email.text()}, {"$push": {"logs": f"Users clicks on delete Account at {datetime.now()}"}})
         dialog = QDialog(self)
         dialog.setWindowTitle("Account Deletetion")
         dialog.setBaseSize(300,300)
@@ -276,10 +285,14 @@ class UpdateAccount(QMainWindow):
             result = collection.delete_one({"email": Email})
 
             if (result.deleted_count > 0):
+                IP = requests.get("https://ipv4.icanhazip.com").text.strip()
+                logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users deletes their account at {datetime.now()} with IP {IP}"}})
+
                 QMessageBox.information(self, "Success!", "Account Has Been Successfully Deleted.")
                 sys.exit()
 
             else:
+                logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users fails to delete their account at {datetime.now()} with IP {IP}"}})
                 QMessageBox.information(self, "Error!", "An Internal Error Has Occurred.\nPlease Try Again Later.")
                 return "Internal Error Has Occurred"
 
@@ -287,6 +300,7 @@ class UpdateAccount(QMainWindow):
            
 
     def changePasswordUI(self, Email):
+        logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users clicks on the change password button at {datetime.now()}"}})
         dialog = QDialog(self)
         dialog.setWindowTitle("Update Your Password")
         dialog.setBaseSize(300,300)
@@ -325,10 +339,12 @@ class UpdateAccount(QMainWindow):
         CurrentPasswordInput = enhancedEncryption(CurrentPasswordInput, Encryptioncode)
 
         if (NewPassInput!=ConfirmNewPassInput):
+            logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users passwords do not match while changing their password at {datetime.now()}"}})
             QMessageBox.critical(self, "Error!", "Passwords Do Not Match.")
             return "Passwords Don't Match"
         
         if (Password!=CurrentPasswordInput):
+            logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users passwords do not match while changing their password at {datetime.now()}"}})
             QMessageBox.critical(self, "Error!", "You Have Entered An Invalid Password")
             return "Invalid Password Entered"
         
@@ -339,10 +355,12 @@ class UpdateAccount(QMainWindow):
                 {"$set": {"password": NewPassInput}}
             )
             if UpdatePassword.modified_count > 0:
+                logs_collection.update_one({"username":Email}, {"$push": {"logs": f"User has changed their password at {datetime.now()}"}})
                 QMessageBox.information(self, "Success!", "Password Has Been Changed Successfully.")
                 sys.exit()
 
             else:
+                logs_collection.update_one({"username":Email}, {"$push": {"logs": f"User has encountered an error while changing their password at {datetime.now()}"}})
                 QMessageBox.information(self, "Error!", "An Internal Error Has Occurred.\nPlease Try Again Later.")
                 return "Internal Error Has Occurred"
                 

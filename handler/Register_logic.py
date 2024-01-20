@@ -11,6 +11,12 @@ import json
 from dotenv import load_dotenv
 import os
 load_dotenv()
+
+client = pymongo.MongoClient("mongodb://localhost:27017/")  
+db = client["CryptoFort"] 
+collection = db["User_Details"]
+logs_collection = db["User_Logs"]
+
 def email_validator(email):
     
     url = "https://mailcheck.p.rapidapi.com/"
@@ -49,13 +55,13 @@ def get_ip_address():
 def registerLogic(eemail,epassword,erepassword):
     try:
         
-        client = pymongo.MongoClient("mongodb://localhost:27017/")  
-        db = client["CryptoFort"] 
-        collection = db["User_Details"]
+
 
         email = eemail.text().lower()
         password = epassword.text()
         repassword = erepassword.text()
+        logs_entry = {"username": email.lower(), "logs": ["User logs:"]}
+        logs_collection.insert_one(logs_entry)
 
         count = collection.count_documents({"email": email})
         
@@ -63,11 +69,13 @@ def registerLogic(eemail,epassword,erepassword):
         if (email_validator(email)):
             pass
         else:
+            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User tries registering with an invalid email at {datetime.now()} with IP {get_ip_address()}"}})
             hi = QDialog()
             QMessageBox.critical(hi, "Error", "Invalid Email")
             return "Invalid Email"
         
         if (count>0):
+            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User tries registering with an already registered email at {datetime.now()} with IP {get_ip_address()}"}})
             EmailAlreadyRegistered = QMessageBox()
             EmailAlreadyRegistered.setWindowTitle("Error")
             EmailAlreadyRegistered.setText("Email Has Already Been Registered")
@@ -79,6 +87,7 @@ def registerLogic(eemail,epassword,erepassword):
 
 
         if (password!=repassword):
+            logs_collection.update_one({"username": email}, {"$push": {"logs": f"Users passwords do not match while registering at {datetime.now()} with IP {get_ip_address()}"}})
             PasswordMismatch = QMessageBox()
             PasswordMismatch.setWindowTitle("Error")
             PasswordMismatch.setText("Passwords dont match")
@@ -87,9 +96,6 @@ def registerLogic(eemail,epassword,erepassword):
         
 
         try:
-            logs_collection = db["User_Logs"]
-            logs_entry = {"username": email.lower(), "logs": ["User logs:"]}
-            logs_collection.insert_one(logs_entry)
             epoch = str(time.time())
             EncryptionCode = epoch.split('.')[1]
             EncryptionCode+=EncryptionCode
@@ -112,7 +118,7 @@ def registerLogic(eemail,epassword,erepassword):
 
             }
             collection.insert_one(user_data)
-
+            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User with {email.lower()} creates a new account at {datetime.now()} with IP {IP}"}})
             RegisterSuccess = QMessageBox()
             RegisterSuccess.setWindowTitle("Account Created!")
             email_verification(email,random_number)
@@ -121,12 +127,14 @@ def registerLogic(eemail,epassword,erepassword):
             return "Success"
         
         except Exception as err:
+            logs_collection.update_one({"username": email}, {"$push": {"logs": f"Internal Server Error at {datetime.now()}"}})
             internal_error()
             return err
 
 
         
     except Exception as err:
+        logs_collection.update_one({"username": email}, {"$push": {"logs": f"Internal Server Error at {datetime.now()}"}})
         internal_error()
         return err
     
