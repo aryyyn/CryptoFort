@@ -1,5 +1,5 @@
 import pymongo
-from PyQt6.QtWidgets import QMessageBox, QLineEdit, QDialog,QDialogButtonBox,QVBoxLayout,QLabel
+from PyQt6.QtWidgets import QMessageBox, QLineEdit, QDialog,QDialogButtonBox,QVBoxLayout,QLabel,QInputDialog
 import socket
 import requests
 import random, time
@@ -10,6 +10,7 @@ from handler.send_email import email_verification
 import json
 from dotenv import load_dotenv
 import os
+import re
 load_dotenv()
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
@@ -29,7 +30,6 @@ def email_validator(email):
     }
     response = requests.get(url, headers=headers, params=querystring).text
     parsed_email_data = json.loads(response)
-    print(parsed_email_data)
     if (str((parsed_email_data["valid"])) == "True"):
         if (str((parsed_email_data["text"])) == "Looks okay"):
             if(str((parsed_email_data["disposable"])) == "False"):
@@ -42,16 +42,60 @@ def getDateAndTime():
     DateAndTime = datetime.now()
     return DateAndTime
 
-def internal_error():
+def is_strong_password(password):
+    pattern = r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$'
+    return bool(re.match(pattern, password))
+
+def internal_error(err):
     InternalError = QMessageBox()
-    InternalError.setWindowTitle("Error")
-    InternalError.setText("An Internal Error Has Occurred\nPlease Try Again Later")
+    InternalError.setWindowTitle("Errpr")
+    InternalError.setText(f"An Internal Error Has Occurred\nPlease Try Again Later\nError is {err}")
     button = InternalError.exec()
 
 def get_ip_address():
     IP = requests.get("https://ipv4.icanhazip.com").text.strip()
     return IP
 
+
+def CustomMessage(title,description):
+    dialog = QInputDialog()
+    dialog.setStyleSheet("""
+            * {
+                color: #00FF00; 
+                background: #000000; 
+            }
+
+                           
+            Qlabel {
+            font-size: 3px
+            }
+                           
+                                       QPushButton {
+                border: 2px solid #00FF00; 
+                border-radius: 8px;
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 #111111, stop: 0.5 #222222, stop: 1 #111111);
+                min-width: 100px;
+                font-size: 12px;
+                color: #00FF00; 
+            }
+
+            QPushButton:hover {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 #222222, stop: 0.5 #111111, stop: 1 #222222);
+            }
+
+            QLabel {
+                color: #00FF00; 
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+
+        """)
+    QMessageBox.information(dialog,title,description)
+
+    
 def registerLogic(eemail,epassword,erepassword):
     try:
         
@@ -60,6 +104,40 @@ def registerLogic(eemail,epassword,erepassword):
         email = eemail.text().lower()
         password = epassword.text()
         repassword = erepassword.text()
+
+        if email == "":
+            # EmailFieldEmpty = QMessageBox()
+            # EmailFieldEmpty.setWindowTitle("Error")
+            # EmailFieldEmpty.setText("Email Field Cannot Be Empty")
+            # button = EmailFieldEmpty.exec()
+
+            CustomMessage("Error","Email Field Cannot be Empty")
+            return "Email Field Empty"
+        
+        if (is_strong_password(password) == False):
+            CustomMessage("Password Is Not Strong Enough", "Make Sure To Include At Lease One Uppercase and One Digit")
+            return "Password Not Strong Enough"
+        
+       
+
+        if password == "":
+            # PasswordFieldEmpty = QMessageBox()
+            # PasswordFieldEmpty.setWindowTitle("Error")
+            # PasswordFieldEmpty.setText("Password Field Cannot Be Empty")
+            # button = PasswordFieldEmpty.exec()
+            CustomMessage("Error","Password Field Cannot be Empty")
+            return "Password Field Empty"
+        
+        if repassword == "":
+            # RePasswordFieldEmpty = QMessageBox()
+            # RePasswordFieldEmpty.setWindowTitle("Error")
+            # RePasswordFieldEmpty.setText("RePassword Field Cannot Be Empty")
+            # button = RePasswordFieldEmpty.exec()
+            CustomMessage("Error","Password Field Cannot be Empty")
+            return "RePassword Field Empty"
+
+
+
         logs_entry = {"username": email.lower(), "logs": ["User logs:"]}
         logs_collection.insert_one(logs_entry)
 
@@ -70,16 +148,18 @@ def registerLogic(eemail,epassword,erepassword):
             pass
         else:
             logs_collection.update_one({"username": email}, {"$push": {"logs": f"User tries registering with an invalid email at {datetime.now()} with IP {get_ip_address()}"}})
-            hi = QDialog()
-            QMessageBox.critical(hi, "Error", "Invalid Email")
+            # hi = QDialog()
+            # QMessageBox.critical(hi, "Error", "Invalid Email")
+            CustomMessage("Error","Invalid Email!")
             return "Invalid Email"
         
         if (count>0):
             logs_collection.update_one({"username": email}, {"$push": {"logs": f"User tries registering with an already registered email at {datetime.now()} with IP {get_ip_address()}"}})
-            EmailAlreadyRegistered = QMessageBox()
-            EmailAlreadyRegistered.setWindowTitle("Error")
-            EmailAlreadyRegistered.setText("Email Has Already Been Registered")
-            button = EmailAlreadyRegistered.exec()
+            # EmailAlreadyRegistered = QMessageBox()
+            # EmailAlreadyRegistered.setWindowTitle("Error")
+            # EmailAlreadyRegistered.setText("Email Has Already Been Registered")
+            # button = EmailAlreadyRegistered.exec()
+            CustomMessage("Error","Email Has Already Been Registered")
             return "Email Already Registered"
         
 
@@ -88,10 +168,11 @@ def registerLogic(eemail,epassword,erepassword):
 
         if (password!=repassword):
             logs_collection.update_one({"username": email}, {"$push": {"logs": f"Users passwords do not match while registering at {datetime.now()} with IP {get_ip_address()}"}})
-            PasswordMismatch = QMessageBox()
-            PasswordMismatch.setWindowTitle("Error")
-            PasswordMismatch.setText("Passwords dont match")
-            button = PasswordMismatch.exec()
+            # PasswordMismatch = QMessageBox()
+            # PasswordMismatch.setWindowTitle("Error")
+            # PasswordMismatch.setText("Passwords dont match")
+            # button = PasswordMismatch.exec()
+            CustomMessage("Error","Passwords dont match")
             return "Password Mismatch"
         
 
@@ -118,24 +199,25 @@ def registerLogic(eemail,epassword,erepassword):
 
             }
             collection.insert_one(user_data)
-            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User with {email.lower()} creates a new account at {datetime.now()} with IP {IP}"}})
-            RegisterSuccess = QMessageBox()
-            RegisterSuccess.setWindowTitle("Account Created!")
             email_verification(email,random_number)
-            RegisterSuccess.setText("Account Has Been Successfully Created!")
-            button = RegisterSuccess.exec()
+            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User with {email.lower()} creates a new account at {datetime.now()} with IP {IP}"}})
+            # RegisterSuccess = QMessageBox()
+            # RegisterSuccess.setWindowTitle("Account Created!")
+            # RegisterSuccess.setText("Account Has Been Successfully Created!")
+            # button = RegisterSuccess.exec()
+            CustomMessage("Success!","Account Has Been Successfully Created!\nPlease Check Your Email For Verification Code")
             return "Success"
         
         except Exception as err:
             logs_collection.update_one({"username": email}, {"$push": {"logs": f"Internal Server Error at {datetime.now()}"}})
-            internal_error()
+            internal_error(err)
             return err
 
 
         
     except Exception as err:
         logs_collection.update_one({"username": email}, {"$push": {"logs": f"Internal Server Error at {datetime.now()}"}})
-        internal_error()
+        internal_error(err)
         return err
     
     

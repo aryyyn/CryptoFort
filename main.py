@@ -168,6 +168,10 @@ class RegisterWindow(QMainWindow):
 
     def regiserGuide(self):
        RegisterText =  registerLogic(self.registeremail, self.registerpassword, self.repassword)
+       if (RegisterText == "Success"):
+           self.hide()
+           self.LoginWindow = LoginWindow()
+           self.LoginWindow.show()
 
 
     def openLogin(self):
