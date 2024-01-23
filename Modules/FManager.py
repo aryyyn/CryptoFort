@@ -20,6 +20,7 @@ from gridfs import GridFS
 from bson.binary import Binary
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 from datetime import datetime
+from handler.showPassword import togglePassword
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
 db = client["CryptoFort"]
@@ -105,15 +106,52 @@ class FManagerWindow(QMainWindow):
 
     def passInput(self):
         Hello = QDialog()
+        Hello.setStyleSheet("""
+            * {
+                color: #00FF00; 
+                background: #000000; 
+                font-size: 14px;
+            }
+
+            QPushButton {
+                border: 2px solid #00FF00; 
+                border-radius: 8px;
+                background: #111111;
+                min-width: 100px;
+                color: #00FF00; 
+                padding: 8px 16px;
+            }
+
+            QPushButton:hover {
+                background: #222222;
+            }
+
+            QLabel {
+                color: #00FF00; 
+                font-size: 16px;
+                font-weight: bold;
+            }
+        """)
         Hello.setWindowTitle("Enter A Password")
-        layout = QVBoxLayout()
+        Hello.setBaseSize(200,200)
+        layout = QVBoxLayout(Hello)
+        HorizontalLayout = QHBoxLayout(Hello)
         password_input = QLineEdit()
-        layout.addWidget(password_input)
+        password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        password_input.setFixedWidth(200)
+        ShowPasswordButton = QPushButton("SHOW")
+        EnterPasswordLabel = QLabel("Enter File Password: ")
+        HorizontalLayout.addWidget(EnterPasswordLabel)
+        HorizontalLayout.addWidget(password_input)
+        HorizontalLayout.addWidget(ShowPasswordButton)
+        
+        layout.addLayout(HorizontalLayout)
 
         submitbtm = QPushButton("Submit")
-        layout.addWidget(submitbtm)
+        submitbtm.setFixedSize(20,50)
+        layout.addWidget(submitbtm, alignment=Qt.AlignmentFlag.AlignCenter)
         submitbtm.clicked.connect(Hello.accept)
-
+        ShowPasswordButton.clicked.connect(lambda: togglePassword(password_input, ShowPasswordButton))
         Hello.setLayout(layout)
         Hello.exec()
         return password_input.text()
