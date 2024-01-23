@@ -464,24 +464,15 @@ class LoginWindow(QMainWindow):
 
     def loginGuide(self):
        LoginResult = loginLogic(self.loginInput, self.PasswordInput)
-       if (LoginResult == "No Email Found"):
-            NoEmail = PromptDialog("Error!", "No Data Found With This Email")
-            NoEmail.exec()
-       elif(LoginResult == "InCorrect Password"):
-           WrongPass = PromptDialog("Error!", "Wrong Password")
-           WrongPass.exec()
-       elif(LoginResult == "Wrong Code"):
-           WrongCode = PromptDialog("Error!", "Wrong Code")
-           WrongPass.exec() 
-       elif(LoginResult == "Error"):
+
+
+
+       if(LoginResult == "Error"):
            InvalidResult = PromptDialog("Error!", "There Has Been An Error!")
            InvalidResult.exec()  
        elif(LoginResult == "InvalidIP"):
            InvalidIP = PromptDialog("Invalid IP!", "IPS Do Not Match")
            InvalidIP.exec()
-       elif(LoginResult == "NoEmail"):
-           Empty = PromptDialog("Empty Input Found", "Email/Password Can't Be Empty")
-           Empty.exec()
          
        elif(LoginResult == "Correct Password"):
            if (str(self.loginInput.text()) == str("admin")):

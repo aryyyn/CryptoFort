@@ -28,6 +28,46 @@ def user_login_logs(email):
     log_entry = f"User logged in at {datetime.now()} with IP address {get_ip_address()}"
     logs_collection.update_one({"username": email}, {"$push": {"logs": log_entry}})
 
+
+def CustomMessage(title,description):
+    dialog = QInputDialog()
+    dialog.setStyleSheet("""
+            * {
+                color: #00FF00; 
+                background: #000000; 
+            }
+
+                           
+            Qlabel {
+            font-size: 3px
+            }
+                           
+                                       QPushButton {
+                border: 2px solid #00FF00; 
+                border-radius: 8px;
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 #111111, stop: 0.5 #222222, stop: 1 #111111);
+                min-width: 100px;
+                font-size: 12px;
+                color: #00FF00; 
+            }
+
+            QPushButton:hover {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 #222222, stop: 0.5 #111111, stop: 1 #222222);
+            }
+
+            QLabel {
+                color: #00FF00; 
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+
+        """)
+    QMessageBox.information(dialog,title,description)
+
+
 def loginLogic(eemail, epassword):
     
     email = eemail.text().lower()
@@ -35,14 +75,19 @@ def loginLogic(eemail, epassword):
 
 
     if email == "":
-        return "NoEmail"
+        CustomMessage("Error","Email Field Cannot be Empty")
+        return "Email Field Empty"
+    
     if password == "":
-        return "NoEmail"
+        CustomMessage("Error","Password Field Cannot be Empty")
+        return "Password Field Empty"
+    
     count = collection.count_documents({"email": email})
    
     if count == 0:
         logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid email at {datetime.now()}"}})
-        return "No Email Found"
+        CustomMessage("Error","No Data Found With This Email")
+        return "Password Field Empty"
     else:
         results = collection.find({"email": email})
         for data in results:
@@ -285,7 +330,8 @@ def loginLogic(eemail, epassword):
 
             else:
                 logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
-                return "InCorrect Password"
+                CustomMessage("Error","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
+                return "error"
             
                 
 
@@ -366,8 +412,9 @@ def codeCheck(email, InputCode,NotVerified: QDialog):
 
         """)
                 logs_collection.update_one({"username": email}, {"$push": {"logs": f"User inserts a wrong code at {datetime.now()}"}})
-                QMessageBox.information(dialog, "Error", "Wrong Code")
-            
+                # QMessageBox.information(dialog, "Error", "Wrong Code")
+                CustomMessage("Error","Invalid Code.")
+
     except Exception as err:
         dialog = QInputDialog()
         dialog.setStyleSheet("""
