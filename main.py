@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont,QPainter, QPen
+from PyQt6.QtGui import QFont,QPainter, QPen,QPixmap,QIcon
 
 import sys
 from handler.Register_logic import registerLogic
@@ -422,7 +422,13 @@ class LoginWindow(QMainWindow):
         self.PasswordInput.setFixedWidth(650)
         self.PasswordInput.setPlaceholderText("Enter your password")
         self.PasswordInput.setEchoMode(QLineEdit.EchoMode.Password)
-        self.ShowLoginPass = QPushButton("SHOW")
+
+
+        icon_path = 'Logo/eye.png'
+        hide = QPixmap(icon_path)
+
+        self.ShowLoginPass = QPushButton(QIcon(hide),"")
+        
         self.ShowLoginPass.setFixedHeight(40)
         self.ShowLoginPass.setFixedWidth(10)
 
