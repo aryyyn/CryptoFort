@@ -11,6 +11,8 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont,QPainter, QPen
+
 import sys
 from handler.Register_logic import registerLogic
 from handler.showPassword import togglePassword
@@ -24,6 +26,7 @@ from handler.forget_password import ForgetPassword
 import pymongo
 from datetime import datetime
 from Admin.adminUI import AdminWindow
+
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
 db = client["CryptoFort"] 
@@ -344,6 +347,7 @@ class LoginWindow(QMainWindow):
     def init_ui(self):
         self.setFixedSize(750, 550)
         self.setWindowTitle("CryptoFort | Login")
+        # Note: The icon path should be adjusted based on the actual location of your logo
         icon = QIcon("logo/logo.png")
         self.setWindowIcon(icon)
 
@@ -351,31 +355,34 @@ class LoginWindow(QMainWindow):
             * {
                 color: #00FF00; 
                 background: #000000; 
+                
             }
 
             QLineEdit {
-                border: 2px solid #00FF00; 
-                border-radius: 15px;
-                padding: 25px;
+                border: 1px solid #00FF00; 
+                border-radius: 5px;
+                padding: 8px;
                 selection-background-color: #00FF00; 
-                background-color: #111111; 
+                background-color: #000000; 
                 color: #00FF00; 
                 font-size: 14px;
             }
 
+            QLineEdit:focus {
+                border: 2px solid #00FF00; /* Highlight border when input is focused */
+            }
+
             QPushButton {
-                border: 2px solid #00FF00; 
-                border-radius: 12px;
-                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                            stop: 0 #111111, stop: 0.5 #222222, stop: 1 #111111);
+                border: 1px solid #00FF00; 
+                border-radius: 5px;
+                background: #111111;
                 min-width: 100px;
                 font-size: 12px;
                 color: #00FF00; 
             }
 
             QPushButton:hover {
-                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                            stop: 0 #222222, stop: 0.5 #111111, stop: 1 #222222);
+                background: #222222;
             }
 
             QLabel {
@@ -389,61 +396,62 @@ class LoginWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(100, 100, 100, 100)
-        layout.setSpacing(5)
-
-        
+        layout.setContentsMargins(50, 50, 50, 50)
+        layout.setSpacing(20)
 
         LoginTitle = QLabel("CryptoFort || Login")
         LoginTitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        email_layout = QHBoxLayout()
+        email_layout = QVBoxLayout()
         loginlabel = QLabel("Email: ")
         self.loginInput = QLineEdit()
-        self.loginInput.setFixedHeight(30)
+        self.loginInput.setFixedHeight(40)
         self.loginInput.setPlaceholderText("Enter your email")
 
         email_layout.addWidget(loginlabel)
         email_layout.addWidget(self.loginInput)
 
         ResetPassword = QPushButton("Forgot Password?")
-        ResetPassword.setFixedSize(50,25)
+        ResetPassword.setFixedHeight(40)
 
         password_layout = QHBoxLayout()
+        # password_layout2 = QHBoxLayout()
         passwordlabel = QLabel("Password: ")
         self.PasswordInput = QLineEdit()
-        self.PasswordInput.setFixedHeight(30)
+        self.PasswordInput.setFixedHeight(40)
+        self.PasswordInput.setFixedWidth(650)
         self.PasswordInput.setPlaceholderText("Enter your password")
         self.PasswordInput.setEchoMode(QLineEdit.EchoMode.Password)
         self.ShowLoginPass = QPushButton("SHOW")
-        self.ShowLoginPass.setFixedSize(50, 25)
+        self.ShowLoginPass.setFixedHeight(40)
+        self.ShowLoginPass.setFixedWidth(10)
 
-        password_layout.addWidget(passwordlabel)
+
         password_layout.addWidget(self.PasswordInput)
-        password_layout.addWidget(self.ShowLoginPass)
-        password_layout.addWidget(ResetPassword)
-
-
-    
-        rrsubmit = QPushButton("Login")
-        rrsubmit.setFixedSize(70, 30)
+        password_layout.addWidget(self.ShowLoginPass, alignment=Qt.AlignmentFlag.AlignRight)
         
+
+        rrsubmit = QPushButton("Login")
+        rrsubmit.setFixedHeight(40)
+
         promptRegister_layout = QHBoxLayout()
         promptRegister = QLabel("Not A Member?")
         promptRegister.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.promptRegisterbtn = QPushButton("Register")
-        self.promptRegisterbtn.setFixedSize(50, 25)
+        self.promptRegisterbtn.setFixedHeight(30)
+       
 
-        promptRegister_layout.addWidget(promptRegister)
-        promptRegister_layout.addSpacing(2)
-        promptRegister_layout.addWidget(self.promptRegisterbtn, alignment=Qt.AlignmentFlag.AlignLeft)
+        promptRegister_layout.addWidget(promptRegister, alignment=Qt.AlignmentFlag.AlignRight)
+        promptRegister_layout.addWidget(self.promptRegisterbtn)
 
-    
-        
-    
-        layout.addWidget(LoginTitle)
+        layout.addWidget(LoginTitle, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addSpacing(20)
         layout.addLayout(email_layout)
+        layout.addSpacing(20)
+        layout.addWidget(passwordlabel)
         layout.addLayout(password_layout)
+        layout.addWidget(ResetPassword)
+        layout.addSpacing(20)
         layout.addWidget(rrsubmit, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addLayout(promptRegister_layout)
 
@@ -463,26 +471,23 @@ class LoginWindow(QMainWindow):
         self.RW.show()
 
     def loginGuide(self):
-       LoginResult = loginLogic(self.loginInput, self.PasswordInput)
+        LoginResult = loginLogic(self.loginInput, self.PasswordInput)
 
-
-
-       if(LoginResult == "Error"):
-           InvalidResult = PromptDialog("Error!", "There Has Been An Error!")
-           InvalidResult.exec()  
-       elif(LoginResult == "InvalidIP"):
-           InvalidIP = PromptDialog("Invalid IP!", "IPS Do Not Match")
-           InvalidIP.exec()
-         
-       elif(LoginResult == "Correct Password"):
-           if (str(self.loginInput.text()) == str("admin")):
-               self.hide()
-               self.Admin = AdminWindow(self.loginInput)
-               self.Admin.show()
-           else:
-            self.hide()
-            self.MM = ModuleWindow(self.loginInput)
-            self.MM.show() 
+        if LoginResult == "Error":
+            InvalidResult = PromptDialog("Error!", "There Has Been An Error!")
+            InvalidResult.exec()  
+        elif LoginResult == "InvalidIP":
+            InvalidIP = PromptDialog("Invalid IP!", "IPS Do Not Match")
+            InvalidIP.exec()
+        elif LoginResult == "Correct Password":
+            if str(self.loginInput.text()) == "admin":
+                self.hide()
+                self.Admin = AdminWindow(self.loginInput)
+                self.Admin.show()
+            else:
+                self.hide()
+                self.MM = ModuleWindow(self.loginInput)
+                self.MM.show()
             
            
        
