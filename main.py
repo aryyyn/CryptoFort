@@ -63,31 +63,36 @@ class RegisterWindow(QMainWindow):
             * {
                 color: #00FF00; 
                 background: #000000; 
+                
+                
             }
 
             QLineEdit {
-                border: 2px solid #00FF00; 
-                border-radius: 8px;
-                padding: 25px;
+                border: 1px solid #00FF00; 
+                border-radius: 5px;
+                padding: 8px;
                 selection-background-color: #00FF00; 
-                background-color: #111111; 
+                background-color: #000000; 
                 color: #00FF00; 
                 font-size: 14px;
             }
 
-            QPushButton {
+            QLineEdit:focus {
                 border: 2px solid #00FF00; 
-                border-radius: 8px;
-                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                            stop: 0 #111111, stop: 0.5 #222222, stop: 1 #111111);
+                          
+            }
+
+            QPushButton {
+                border: 1px solid #00FF00; 
+                border-radius: 5px;
+                background: #111111;
                 min-width: 100px;
                 font-size: 12px;
                 color: #00FF00; 
             }
 
             QPushButton:hover {
-                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                            stop: 0 #222222, stop: 0.5 #111111, stop: 1 #222222);
+                background: #222222;
             }
 
             QLabel {
@@ -101,65 +106,78 @@ class RegisterWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(100, 100, 100, 100)
-        layout.setSpacing(5)
+        layout.setContentsMargins(50, 50, 50, 50)
+        layout.setSpacing(20)
 
         RegisterTitle = QLabel("CryptoFort || Register")
         RegisterTitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
 
-        email_layout = QHBoxLayout()
+        email_layout = QVBoxLayout()
         registeremaillabel = QLabel("Email: ")
         self.registeremail = QLineEdit()
-        self.registeremail.setFixedHeight(30)
+        self.registeremail.setFixedHeight(40)
         self.registeremail.setPlaceholderText("Enter your email")
 
         email_layout.addWidget(registeremaillabel)
         email_layout.addWidget(self.registeremail)
 
+        icon_path = 'Logo/eye.png'
+        hide = QPixmap(icon_path)
+
         password_layout = QHBoxLayout()
         registerpasslabel = QLabel("Password: ")
         self.registerpassword = QLineEdit()
-        self.registerpassword.setFixedHeight(30)
+        self.registerpassword.setFixedHeight(40)
+        self.registerpassword.setFixedWidth(650)
         self.registerpassword.setPlaceholderText("Enter your password")
         self.registerpassword.setEchoMode(QLineEdit.EchoMode.Password)
-        self.showregisterpassword = QPushButton("SHOW")
-        self.showregisterpassword.setFixedSize(50, 25)
+        self.showregisterpassword = QPushButton(QIcon(hide),"")
+        self.showregisterpassword.setFixedSize(10, 40)
 
-        password_layout.addWidget(registerpasslabel)
+        # password_layout.addWidget(registerpasslabel)
         password_layout.addWidget(self.registerpassword)
         password_layout.addWidget(self.showregisterpassword)
 
         repassword_layout = QHBoxLayout()
         repasswordlabel = QLabel("Re-Enter Password: ")
         self.repassword = QLineEdit()
-        self.repassword.setFixedHeight(30)
+        self.repassword.setFixedHeight(40)
+        self.repassword.setFixedWidth(650)
         self.repassword.setPlaceholderText("Re-enter your password")
         self.repassword.setEchoMode(QLineEdit.EchoMode.Password)
-        self.showconfirmregisterpassword = QPushButton("SHOW")
-        self.showconfirmregisterpassword.setFixedSize(50, 25)
 
-        repassword_layout.addWidget(repasswordlabel)
+
+
+        self.showconfirmregisterpassword = QPushButton(QIcon(hide),"")
+        self.showconfirmregisterpassword.setFixedSize(10, 40)
+
+        # repassword_layout.addWidget(repasswordlabel)
         repassword_layout.addWidget(self.repassword)
         repassword_layout.addWidget(self.showconfirmregisterpassword)
 
         promptlogin_layout = QHBoxLayout()
         promptlogin = QLabel("Already have an account? ")
-        promptlogin.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.promptloginbtn = QPushButton("Login")
         self.promptloginbtn.setFixedSize(50, 25)
 
-        promptlogin_layout.addWidget(promptlogin)
-        promptlogin_layout.addSpacing(2)
-        promptlogin_layout.addWidget(self.promptloginbtn, alignment=Qt.AlignmentFlag.AlignLeft)
+        promptlogin_layout.addWidget(promptlogin, alignment=Qt.AlignmentFlag.AlignRight)
+        # promptlogin_layout.addSpacing(2)
+        promptlogin_layout.addWidget(self.promptloginbtn)
 
         rrsubmit = QPushButton("Register")
-        rrsubmit.setFixedSize(70, 30)
+        rrsubmit.setFixedHeight(40)
 
-        layout.addWidget(RegisterTitle)
+        layout.addWidget(RegisterTitle, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addSpacing(20)
         layout.addLayout(email_layout)
+        layout.addSpacing(20)
+        layout.addWidget(registerpasslabel)
         layout.addLayout(password_layout)
+        layout.addWidget(repasswordlabel)
         layout.addLayout(repassword_layout)
         layout.addWidget(rrsubmit, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addSpacing(20)
         layout.addLayout(promptlogin_layout)
 
         rrsubmit.clicked.connect(self.regiserGuide)
@@ -369,7 +387,8 @@ class LoginWindow(QMainWindow):
             }
 
             QLineEdit:focus {
-                border: 2px solid #00FF00; /* Highlight border when input is focused */
+                border: 2px solid #00FF00; 
+               
             }
 
             QPushButton {
@@ -413,6 +432,8 @@ class LoginWindow(QMainWindow):
 
         ResetPassword = QPushButton("Forgot Password?")
         ResetPassword.setFixedHeight(40)
+       
+        
 
         password_layout = QHBoxLayout()
         # password_layout2 = QHBoxLayout()
@@ -429,8 +450,8 @@ class LoginWindow(QMainWindow):
 
         self.ShowLoginPass = QPushButton(QIcon(hide),"")
         
-        self.ShowLoginPass.setFixedHeight(40)
-        self.ShowLoginPass.setFixedWidth(10)
+
+        self.ShowLoginPass.setFixedSize(10,40)
 
 
         password_layout.addWidget(self.PasswordInput)
@@ -444,7 +465,7 @@ class LoginWindow(QMainWindow):
         promptRegister = QLabel("Not A Member?")
         promptRegister.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.promptRegisterbtn = QPushButton("Register")
-        self.promptRegisterbtn.setFixedHeight(30)
+        self.promptRegisterbtn.setFixedSize(50, 25)
        
 
         promptRegister_layout.addWidget(promptRegister, alignment=Qt.AlignmentFlag.AlignRight)

@@ -114,6 +114,10 @@ def registerLogic(eemail,epassword,erepassword):
             CustomMessage("Error","Email Field Cannot be Empty")
             return "Email Field Empty"
         
+        if password == "" or repassword == "":
+            CustomMessage("Error","Password Field Cannot be Empty")
+            return "Password Field Empty"
+        
         if (is_strong_password(password) == False):
             CustomMessage("Password Is Not Strong Enough", "Make Sure To Include At Lease One Uppercase and One Digit")
             return "Password Not Strong Enough"
