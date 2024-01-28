@@ -16,6 +16,7 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["CryptoFort"] 
 collection = db["User_Details"]
 logs_collection = db["User_Logs"]
+IP_collection = db["IP_Details"]
 
 loginMessage = "InCorrect Password"
 VerificationMessage = "Wrong Code"
@@ -69,6 +70,10 @@ def CustomMessage(title,description):
 
 
 def loginLogic(eemail, epassword):
+
+
+
+    
     
     email = eemail.text().lower()
     password = epassword.text()
@@ -329,9 +334,91 @@ def loginLogic(eemail, epassword):
                         return "Error"
 
             else:
-                logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
-                CustomMessage("Error","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
-                return "error"
+                IP = get_ip_address()
+                IPResult = IP_collection.count_documents({"IP": IP})
+
+                if(IPResult == 0):
+                    IP_Data = {
+                        "IP": IP,
+                        "IP_Attempt_Count": 1,
+                        "isBanned": False,
+                        "Time": "2024-01-28 19:46:11.978236"
+
+                    }
+                    
+                    IP_collection.insert_one(IP_Data)
+                    logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
+                    CustomMessage("Error","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
+
+
+                else:
+
+
+                    IPResult = IP_collection.find({"IP": IP})
+                    for data in IPResult:
+                        IP_Attempt_Count = int(data["IP_Attempt_Count"])
+                        isBanned = data["isBanned"]
+                        Time = data["Time"]
+
+                        specified_time = datetime.strptime(Time, "%Y-%m-%d %H:%M:%S.%f")
+                        current_time = datetime.now()
+                        time_difference = current_time - specified_time
+                        hours_passed = int(time_difference.total_seconds() / 3600)
+
+
+                        if IP_Attempt_Count>=10:
+                            if not isBanned:
+                                IP_collection.update_one(
+                                {"IP": IP},
+                                {
+                                    "$set": {
+                                        "isBanned": True
+                                    }
+                                    }
+                                )
+                                logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
+                                CustomMessage("Error","Too Many Login Attempts\nYour IP has been banned due to multiple login attempts.")
+
+                        if isBanned:
+                            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
+                            CustomMessage("Error","Too Many Login Attempts\nYour IP has been banned due to multiple login attempts.")
+
+                        if(not isBanned):
+                            IP_collection.update_one(
+                            {"IP": IP},
+                            {"$inc": {"IP_Attempt_Count": 1}}
+                                )
+                            
+
+
+                        if IP_Attempt_Count<10 and not isBanned:
+                            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
+                            CustomMessage("Error","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
+                            return "Wrong Password"
+
+                        if isBanned and hours_passed > 1:
+                            IP_collection.update_one(
+                            {"IP": IP},
+                            {
+                                "$set": {
+                                    "IP_Attempt_Count": 1,
+                                    "isBanned": False
+                                }
+                                }
+                            )
+                            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
+                            CustomMessage("Error","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
+                            return "Wrong Password"
+                        
+
+
+                            
+
+
+
+          
+                    
+               
             
                 
 
