@@ -71,7 +71,19 @@ def CustomMessage(title,description):
 
 def loginLogic(eemail, epassword):
 
+    IP = get_ip_address()
+    isBannedResult = IP_collection.find_one({"IP": IP})
+    isIPBanned = isBannedResult.get("isBanned")
+    IPTime = isBannedResult.get("Time")
 
+    specified_time = datetime.strptime(IPTime, "%Y-%m-%d %H:%M:%S.%f")
+    current_time = datetime.now()
+    time_difference = specified_time - current_time
+    hours_passed = int(time_difference.total_seconds() / 3600)
+
+    if(isIPBanned and hours_passed<1):
+        CustomMessage("IP Banned","Your IP is been banned due to multiple login attempts.")
+        return "IP Banned."
 
     
     
@@ -393,7 +405,7 @@ def loginLogic(eemail, epassword):
                                     }
                                     }
                                 )
-                                logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
+                                logs_collection.update_one({"username": email}, {"$push": {"logs": f"User gets IP banned at {datetime.now()} with IP: {IP}"}})
                                 CustomMessage("IP Banned","Too Many Login Attempts\nYour IP has been banned due to multiple login attempts.")
 
                         if isBanned:

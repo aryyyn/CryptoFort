@@ -17,6 +17,7 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["CryptoFort"] 
 collection = db["User_Details"]
 logs_collection = db["User_Logs"]
+IP_collection = db["IP_Details"]
 
 def email_validator(email):
     
@@ -98,6 +99,21 @@ def CustomMessage(title,description):
     
 def registerLogic(eemail,epassword,erepassword):
     try:
+
+        IP = get_ip_address()
+        isBannedResult = IP_collection.find_one({"IP": IP})
+        isIPBanned = isBannedResult.get("isBanned")
+        IPTime = isBannedResult.get("Time")
+
+        specified_time = datetime.strptime(IPTime, "%Y-%m-%d %H:%M:%S.%f")
+        current_time = datetime.now()
+        time_difference = specified_time - current_time
+        hours_passed = int(time_difference.total_seconds() / 3600)
+
+        if(isIPBanned and hours_passed<1):
+            CustomMessage("IP Banned","Your IP is banned.")
+            return "IP Banned."
+
         
 
 

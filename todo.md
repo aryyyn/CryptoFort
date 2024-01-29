@@ -1,2 +1,2 @@
-#fix the IP ban logic
-#IP unban is not working properly
+#fix the IP ban logic *completed*
+#IP unban is not working properly *completed*
