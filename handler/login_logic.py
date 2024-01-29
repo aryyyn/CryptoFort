@@ -362,41 +362,12 @@ def loginLogic(eemail, epassword):
 
                         specified_time = datetime.strptime(Time, "%Y-%m-%d %H:%M:%S.%f")
                         current_time = datetime.now()
-                        time_difference = current_time - specified_time
+                        time_difference = specified_time - current_time
                         hours_passed = int(time_difference.total_seconds() / 3600)
-
-
-                        if IP_Attempt_Count>=10:
-                            if not isBanned:
-                                IP_collection.update_one(
-                                {"IP": IP},
-                                {
-                                    "$set": {
-                                        "isBanned": True
-                                    }
-                                    }
-                                )
-                                logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
-                                CustomMessage("Error","Too Many Login Attempts\nYour IP has been banned due to multiple login attempts.")
-
-                        if isBanned:
-                            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
-                            CustomMessage("Error","Too Many Login Attempts\nYour IP has been banned due to multiple login attempts.")
-
-                        if(not isBanned):
-                            IP_collection.update_one(
-                            {"IP": IP},
-                            {"$inc": {"IP_Attempt_Count": 1}}
-                                )
-                            
-
-
-                        if IP_Attempt_Count<10 and not isBanned:
-                            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
-                            CustomMessage("Error","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
-                            return "Wrong Password"
-
-                        if isBanned and hours_passed > 1:
+                        # print(hours_passed)
+                        
+                        
+                        if isBanned and hours_passed >= 1:
                             IP_collection.update_one(
                             {"IP": IP},
                             {
@@ -407,8 +378,52 @@ def loginLogic(eemail, epassword):
                                 }
                             )
                             logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
+                            CustomMessage("IP Banned","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
+                            return "Wrong Password"
+
+
+                        if IP_Attempt_Count>=10:
+                            if not isBanned:
+                                IP_collection.update_one(
+                                {"IP": IP},
+                                {
+                                    "$set": {
+                                        "isBanned": True,
+                                        "Time": str(datetime.now())
+                                    }
+                                    }
+                                )
+                                logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
+                                CustomMessage("IP Banned","Too Many Login Attempts\nYour IP has been banned due to multiple login attempts.")
+
+                        if isBanned:
+                            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
+                            CustomMessage("IP Banned","Too Many Login Attempts\nYour IP has been banned due to multiple login attempts.")
+
+                        if(not isBanned):
+                            IP_collection.update_one(
+                            {"IP": IP},
+                            {"$inc": {"IP_Attempt_Count": 1}})
+ 
+
+                        if IP_Attempt_Count<10 and not isBanned:
+                            logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
                             CustomMessage("Error","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
                             return "Wrong Password"
+
+                        # if isBanned and hours_passed > 1:
+                        #     IP_collection.update_one(
+                        #     {"IP": IP},
+                        #     {
+                        #         "$set": {
+                        #             "IP_Attempt_Count": 1,
+                        #             "isBanned": False
+                        #         }
+                        #         }
+                        #     )
+                        #     logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
+                        #     CustomMessage("Error","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
+                        #     return "Wrong Password"
                         
 
 
