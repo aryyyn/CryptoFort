@@ -8,8 +8,9 @@ from PyQt6.QtWidgets import (
     QLabel,
     QDialog,
     QHBoxLayout,
+    
 )
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QKeySequence, QShortcut
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont,QPainter, QPen,QPixmap,QIcon
 
@@ -185,6 +186,10 @@ class RegisterWindow(QMainWindow):
         self.showconfirmregisterpassword.clicked.connect(lambda: togglePassword(self.repassword, self.showconfirmregisterpassword))
         self.promptloginbtn.clicked.connect(self.openLogin)
 
+
+        SubmitEnterShortcut = QShortcut(QKeySequence(Qt.Key.Key_Return), self)
+        SubmitEnterShortcut.activated.connect(rrsubmit.click)
+
         self.show()
 
     def regiserGuide(self):
@@ -319,6 +324,9 @@ class ModuleWindow(QMainWindow):
         Module3.clicked.connect(lambda: self.display_IPC_Module(Email.text()))
         ExitButton.clicked.connect(self.handleExit)
         LogoutButton.clicked.connect(self.handleLogout)
+
+
+
         self.show()
     
     def handleExit(self):
@@ -363,6 +371,8 @@ class LoginWindow(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+
+
         self.setFixedSize(750, 550)
         self.setWindowTitle("CryptoFort | Login")
         # Note: The icon path should be adjusted based on the actual location of your logo
@@ -486,6 +496,10 @@ class LoginWindow(QMainWindow):
         rrsubmit.clicked.connect(self.loginGuide)
         self.promptRegisterbtn.clicked.connect(self.showRegister)
         ResetPassword.clicked.connect(self.showForgetPassword)
+
+
+        SubmitEnterShortcut = QShortcut(QKeySequence(Qt.Key.Key_Return), self)
+        SubmitEnterShortcut.activated.connect(rrsubmit.click)
         self.show()
     
     def showForgetPassword(self):
