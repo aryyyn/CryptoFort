@@ -22,6 +22,7 @@ from ExtraHandler.account_info import AccountInfo
 from ExtraHandler.update_account import UpdateAccount
 from Modules.Encrypto import EncryptoWindow
 from Modules.FManager import FManagerWindow
+from Modules.MailFort import MailFort
 from Modules.IPC import IPCWindow
 from handler.forget_password import ForgetPassword
 import pymongo
@@ -282,6 +283,8 @@ class ModuleWindow(QMainWindow):
         Module2.setFixedSize(400,70)
         Module3 = QPushButton("IPC")
         Module3.setFixedSize(400,70)
+        Module4 = QPushButton("MailFort")
+        Module4.setFixedSize(400,70)
 
         widget1 = QWidget()
         widget1.setFixedSize(300, 100)
@@ -297,6 +300,13 @@ class ModuleWindow(QMainWindow):
         widget3.setFixedSize(300, 100)
         widget3.setLayout(QVBoxLayout())
         widget3.layout().addWidget(Module3)
+        
+
+        widget4 = QWidget()
+        widget4.setFixedSize(300, 100)
+        widget4.setLayout(QVBoxLayout())
+        widget4.layout().addWidget(Module4)
+
 
         BottomLayout = QHBoxLayout()
 
@@ -315,6 +325,7 @@ class ModuleWindow(QMainWindow):
         layout.addWidget(widget1, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(widget2, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(widget3, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(widget4, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addLayout(BottomLayout)
 
         AccountInfo.clicked.connect(lambda: self.display_account_info_methods(Email))
@@ -322,8 +333,19 @@ class ModuleWindow(QMainWindow):
         Module1.clicked.connect(lambda: self.display_Encrypto_Module(Email.text()))
         Module2.clicked.connect(lambda: self.display_FManager_Module(Email.text()))
         Module3.clicked.connect(lambda: self.display_IPC_Module(Email.text()))
+        Module4.clicked.connect(lambda: self.display_MailFort_Module(Email.text()))
         ExitButton.clicked.connect(self.handleExit)
         LogoutButton.clicked.connect(self.handleLogout)
+
+        module1shortcut = QShortcut(QKeySequence("Ctrl+1"), self)
+        module1shortcut.activated.connect(Module1.click)
+
+        module2shortcut = QShortcut(QKeySequence("Ctrl+2"), self)
+        module2shortcut.activated.connect(Module2.click)
+
+        module3shortcut = QShortcut(QKeySequence("Ctrl+3"), self)
+        module3shortcut.activated.connect(Module3.click)
+        
 
 
 
@@ -352,6 +374,12 @@ class ModuleWindow(QMainWindow):
         logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User clicks on the IPC module at  {datetime.now()}"}})
         self.IPC = IPCWindow(Email)
         self.IPC.show()
+
+
+    def display_MailFort_Module(self, Email):
+        logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User clicks on the MailFort module at  {datetime.now()}"}})
+        self.MF = MailFort(Email)
+        self.MF.show()
         
     def display_account_info_methods(self, Email):
         logs_collection.update_one({"username": Email.text()}, {"$push": {"logs": f"User clicks on the account_info module at  {datetime.now()}"}})
