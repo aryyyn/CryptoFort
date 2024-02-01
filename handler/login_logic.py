@@ -94,12 +94,24 @@ def loginLogic(eemail, epassword):
 
     specified_time = datetime.strptime(IPTime, "%Y-%m-%d %H:%M:%S.%f")
     current_time = datetime.now()
-    time_difference = specified_time - current_time
+    time_difference = current_time - specified_time
     hours_passed = int(time_difference.total_seconds() / 3600)
 
     if(isIPBanned and hours_passed<1):
         CustomMessage("IP Banned","Your IP is been banned due to multiple login attempts.")
         return "IP Banned."
+    
+    print(hours_passed)
+    if(isIPBanned and hours_passed>1):
+        IP_collection.update_one(
+        {"IP": IP},
+        {
+            "$set": {
+                "IP_Attempt_Count": 1,
+                "isBanned": False
+            }
+            }
+        )
 
     
     
@@ -390,11 +402,10 @@ def loginLogic(eemail, epassword):
 
                         specified_time = datetime.strptime(Time, "%Y-%m-%d %H:%M:%S.%f")
                         current_time = datetime.now()
-                        time_difference = specified_time - current_time
+                        
+                        time_difference = current_time - specified_time
                         hours_passed = int(time_difference.total_seconds() / 3600)
-                        # print(hours_passed)
-                        
-                        
+
                         if isBanned and hours_passed >= 1:
                             IP_collection.update_one(
                             {"IP": IP},
