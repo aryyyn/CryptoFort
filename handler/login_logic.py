@@ -72,6 +72,22 @@ def CustomMessage(title,description):
 def loginLogic(eemail, epassword):
 
     IP = get_ip_address()
+    
+    
+    IPResult = IP_collection.count_documents({"IP": IP})
+
+    if(IPResult == 0):
+        IP_Data = {
+            "IP": IP,
+            "IP_Attempt_Count": 1,
+            "isBanned": False,
+            "Time": "2024-01-28 19:46:11.978236"
+
+        }
+    
+        IP_collection.insert_one(IP_Data)
+    
+    
     isBannedResult = IP_collection.find_one({"IP": IP})
     isIPBanned = isBannedResult.get("isBanned")
     IPTime = isBannedResult.get("Time")
