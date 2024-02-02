@@ -96,18 +96,25 @@ class MailFort(QMainWindow):
             SentLogs = Mail_logs.get("email_sent", [])
             ReceivedLogs = Mail_logs.get("email_received", [])
 
-
+    # CombineEmail = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{Email}"
+            
             for mail_logs in SentLogs:
                 finalsubjectSent = mail_logs.split('CryptoFortMailModule')[0]
-                finalcontentSent = mail_logs.split('CryptoFortMailModule')[1]
-                finalmailSent = f"[Sent]: {finalsubjectSent}\n{finalcontentSent}\n------------------------------------------------------------------------------"
+                finalcontentandEmailSent = mail_logs.split('CryptoFortMailModule')[1]
+                finalcontentSent = finalcontentandEmailSent.split('CryptoFortMailSent')[0]
+                finalSentBy = finalcontentandEmailSent.split('CryptoFortMailSent')[1]
+
+                finalmailSent = f"[Sent]: {finalsubjectSent}\n{finalcontentSent}\nSent To: {finalSentBy} \n------------------------------------------------------------------------------"
                 MailDisplay.append(finalmailSent)
 
             for mail_Received_logs in ReceivedLogs:
 
                 finalsubjectReceived = mail_Received_logs.split('CryptoFortMailModule')[0]
-                finalcontentReceived = mail_Received_logs.split('CryptoFortMailModule')[1]
-                finalmailReceived = f"[Received]: {finalsubjectReceived}\n{finalcontentReceived}\n------------------------------------------------------------------------------"
+                finalcontentandEmailReceived = mail_Received_logs.split('CryptoFortMailModule')[1]
+                finalcontentReceived = finalcontentandEmailReceived.split('CryptoFortMailSent')[0]
+                finalReceivedBy = finalcontentandEmailReceived.split('CryptoFortMailSent')[1]
+
+                finalmailReceived = f"[Received]: {finalsubjectReceived}\n{finalcontentReceived}\nSent By: {finalReceivedBy}\n------------------------------------------------------------------------------"
                 MailDisplay.append(finalmailReceived)
             
             
@@ -225,8 +232,10 @@ class MailFort(QMainWindow):
 
                 }
                 MailCollection.insert_one(user_mail_data)
-            CombineEmail = f"{subject}CryptoFortMailModule{content}"
-            MailCollection.update_one({"email": Email}, {"$push": {"email_received": CombineEmail}})
+
+            CombineEmail = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{Email}"
+            CombineEmailSent = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{UserEmail}"
+            MailCollection.update_one({"email": Email}, {"$push": {"email_received": CombineEmailSent}})
             MailCollection.update_one({"email": UserEmail}, {"$push": {"email_sent": CombineEmail}})
 
             QMessageBox.critical(self, "Success", "Email Has Been Sent.")
