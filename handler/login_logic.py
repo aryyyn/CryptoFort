@@ -17,6 +17,7 @@ db = client["CryptoFort"]
 collection = db["User_Details"]
 logs_collection = db["User_Logs"]
 IP_collection = db["IP_Details"]
+MailCollection = db["Mail_Details"]
 
 loginMessage = "InCorrect Password"
 VerificationMessage = "Wrong Code"
@@ -73,6 +74,13 @@ def loginLogic(eemail, epassword):
 
     IP = get_ip_address()
     
+    # isThereNewMailResult = MailCollection.find_one({"email": eemail.text().lower()})
+    # isThereNewMail = isThereNewMailResult.get("NewMessageAlert")
+
+    # if(isThereNewMail):
+    #     CustomMessage("New Message!","You Have Received New Messages!")
+        
+
     
     IPResult = IP_collection.count_documents({"IP": IP})
 

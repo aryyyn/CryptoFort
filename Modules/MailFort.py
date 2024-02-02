@@ -94,7 +94,9 @@ class MailFort(QMainWindow):
         if(Mail_logs):
             print("working")
             SentLogs = Mail_logs.get("email_sent", [])
+     
             ReceivedLogs = Mail_logs.get("email_received", [])
+      
 
     # CombineEmail = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{Email}"
             
@@ -122,15 +124,27 @@ class MailFort(QMainWindow):
         else:
             MailDisplay.setText("No Emails Found")
 
+        BottomButtonLayout = QHBoxLayout()
+
         Close = QPushButton("Close")
         Close.setFixedSize(50,50)
 
-        layout.addWidget(CreateMail,alignment=Qt.AlignmentFlag.AlignRight)
+        Refresh = QPushButton("Refresh")
+        Refresh.setFixedSize(50,50)
+
+        BottomButtonLayout.addWidget(Close, alignment=Qt.AlignmentFlag.AlignLeft)
+        BottomButtonLayout.addWidget(CreateMail,alignment=Qt.AlignmentFlag.AlignCenter)
+        BottomButtonLayout.addWidget(Refresh, alignment=Qt.AlignmentFlag.AlignRight)
+        
+
+  
         layout.addWidget(MailDisplay)
-        layout.addWidget(Close,alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addLayout(BottomButtonLayout)
 
 
         CreateMail.clicked.connect(lambda: self.MailCreate(Email))
+        Close.clicked.connect(lambda: self.closeButton())
+        Refresh.clicked.connect(lambda: self.handleRefresh())
 
 
 
@@ -144,6 +158,14 @@ class MailFort(QMainWindow):
         # layout.addWidget(Registered_IPLabel)
 
         self.show()
+
+    def closeButton(self):
+        self.hide()
+
+    def handleRefresh(self):
+        self.repaint()
+        
+
 
     def MailCreate(self, Email):
 
@@ -178,11 +200,11 @@ class MailFort(QMainWindow):
         layout.addSpacing(20)
         layout.addWidget(self.submitButton, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.submitButton.clicked.connect(lambda: self.handleEmailFunction(Email,self.SubjectInput.toPlainText(), self.ContentInput.toPlainText(), self.EmailInput.toPlainText()))
+        self.submitButton.clicked.connect(lambda: self.handleEmailFunction(Email,self.SubjectInput.toPlainText(), self.ContentInput.toPlainText(), self.EmailInput.toPlainText(), dialog))
         
         dialog.exec()
 
-    def handleEmailFunction(self, UserEmail,subject,content,Email):
+    def handleEmailFunction(self, UserEmail,subject,content,Email, seconddailog : QDialog):
 
         if subject == "":
             QMessageBox.critical(self, "Error", "Subject Can Not Be Empty.")
@@ -235,10 +257,17 @@ class MailFort(QMainWindow):
 
             CombineEmail = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{Email}"
             CombineEmailSent = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{UserEmail}"
+
             MailCollection.update_one({"email": Email}, {"$push": {"email_received": CombineEmailSent}})
             MailCollection.update_one({"email": UserEmail}, {"$push": {"email_sent": CombineEmail}})
 
+
+            MailCollection.update_one(
+                {"email": Email},
+                {"$set": {"NewMessageAlert": True}}
+            )
             QMessageBox.critical(self, "Success", "Email Has Been Sent.")
+            seconddailog.hide()
         
         except Exception as err:
             QMessageBox.critical(self, "Error", f"Error: {err}")

@@ -8,6 +8,8 @@ from PyQt6.QtWidgets import (
     QLabel,
     QDialog,
     QHBoxLayout,
+    QInputDialog,
+    QMessageBox
     
 )
 from PyQt6.QtGui import QIcon, QKeySequence, QShortcut
@@ -30,9 +32,11 @@ from datetime import datetime
 from Admin.adminUI import AdminWindow
 
 
+
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
 db = client["CryptoFort"] 
 logs_collection = db["User_Logs"]
+MailCollection = db["Mail_Details"]
 
 class PromptDialog(QDialog):
     def __init__(self, title, description, parent=None):
@@ -350,6 +354,57 @@ class ModuleWindow(QMainWindow):
 
 
         self.show()
+
+        isThereNewMailResult = MailCollection.find_one({"email": Email.text().lower()})
+        isThereNewMail = isThereNewMailResult.get("NewMessageAlert")
+
+        if(isThereNewMail):
+            self.CustomMessage("New Message Alert", "You have received new messages.")
+            MailCollection.update_one(
+                {"email": Email.text()},
+                {"$set": {"NewMessageAlert": False}}
+            )
+
+
+
+    def CustomMessage(self,title,description):
+        dialog = QInputDialog()
+        dialog.setStyleSheet("""
+                * {
+                    color: #00FF00; 
+                    background: #000000; 
+                }
+
+                            
+                Qlabel {
+                font-size: 3px
+                }
+                            
+                                        QPushButton {
+                    border: 2px solid #00FF00; 
+                    border-radius: 8px;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                                stop: 0 #111111, stop: 0.5 #222222, stop: 1 #111111);
+                    min-width: 100px;
+                    font-size: 12px;
+                    color: #00FF00; 
+                }
+
+                QPushButton:hover {
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                                stop: 0 #222222, stop: 0.5 #111111, stop: 1 #222222);
+                }
+
+                QLabel {
+                    color: #00FF00; 
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+
+
+            """)
+        QMessageBox.information(dialog,title,description)
+        
     
     def handleExit(self):
         sys.exit()
