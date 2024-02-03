@@ -30,6 +30,7 @@ from handler.forget_password import ForgetPassword
 import pymongo
 from datetime import datetime
 from Admin.adminUI import AdminWindow
+import requests
 
 
 
@@ -37,6 +38,7 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["CryptoFort"] 
 logs_collection = db["User_Logs"]
 MailCollection = db["Mail_Details"]
+IP_collection = db["IP_Details"]
 
 class PromptDialog(QDialog):
     def __init__(self, title, description, parent=None):
@@ -364,6 +366,16 @@ class ModuleWindow(QMainWindow):
                 {"email": Email.text()},
                 {"$set": {"NewMessageAlert": False}}
             )
+        IP = requests.get("https://ipv4.icanhazip.com").text.strip()
+        IP_collection.update_one(
+        {"IP": IP},
+        {
+            "$set": {
+                "IP_Attempt_Count": 1,
+                "isBanned": False
+            }
+            }
+        )
 
 
 
