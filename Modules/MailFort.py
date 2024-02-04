@@ -16,6 +16,7 @@ from PyQt6.QtCore import Qt
 import sys
 import pymongo
 import json,requests
+from datetime import datetime
 
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
@@ -31,7 +32,7 @@ class MailFort(QMainWindow):
 
     def init_ui(self,Email):
         self.setFixedSize(800, 800)
-        self.setWindowTitle("CryptoFort | IPC")
+        self.setWindowTitle("CryptoFort | MailFort")
         icon = QIcon("logo/logo.png")
         self.setWindowIcon(icon)
 
@@ -41,7 +42,7 @@ class MailFort(QMainWindow):
                 background: #000000; 
             }
 
-          QTextEdit {
+          QTextEdit, QLineEdit{
         border: 2px solid #00FF00;
         border-radius: 8px;
         padding: 10px; 
@@ -87,12 +88,15 @@ class MailFort(QMainWindow):
         CreateMail.setFixedSize(50,50)
 
         MailDisplay = QTextEdit()
-        MailDisplay.setBaseSize(300,500)
+        MailDisplay.setBaseSize(150,500)
         MailDisplay.setReadOnly(True)
+
+        MailDisplay2 = QTextEdit()
+        MailDisplay2.setBaseSize(150,500)
+        MailDisplay2.setReadOnly(True)
 
         Mail_logs = MailCollection.find_one({"email": Email})
         if(Mail_logs):
-            print("working")
             SentLogs = Mail_logs.get("email_sent", [])
      
             ReceivedLogs = Mail_logs.get("email_received", [])
@@ -106,7 +110,7 @@ class MailFort(QMainWindow):
                 finalcontentSent = finalcontentandEmailSent.split('CryptoFortMailSent')[0]
                 finalSentBy = finalcontentandEmailSent.split('CryptoFortMailSent')[1]
 
-                finalmailSent = f"[Sent]: {finalsubjectSent}\n{finalcontentSent}\nSent To: {finalSentBy} \n------------------------------------------------------------------------------"
+                finalmailSent = f"[Sent]: {finalsubjectSent}\n{finalcontentSent}\nSent To: {finalSentBy} \n--------------------------------------------------------"
                 MailDisplay.append(finalmailSent)
 
             for mail_Received_logs in ReceivedLogs:
@@ -116,8 +120,8 @@ class MailFort(QMainWindow):
                 finalcontentReceived = finalcontentandEmailReceived.split('CryptoFortMailSent')[0]
                 finalReceivedBy = finalcontentandEmailReceived.split('CryptoFortMailSent')[1]
 
-                finalmailReceived = f"[Received]: {finalsubjectReceived}\n{finalcontentReceived}\nSent By: {finalReceivedBy}\n------------------------------------------------------------------------------"
-                MailDisplay.append(finalmailReceived)
+                finalmailReceived = f"[Received]: {finalsubjectReceived}\n{finalcontentReceived}\nSent By: {finalReceivedBy}\n-----------------------------------------------------------"
+                MailDisplay2.append(finalmailReceived)
             
             
 
@@ -137,8 +141,11 @@ class MailFort(QMainWindow):
         BottomButtonLayout.addWidget(Refresh, alignment=Qt.AlignmentFlag.AlignRight)
         
 
-  
-        layout.addWidget(MailDisplay)
+        MiddleLayout = QHBoxLayout()
+        MiddleLayout.addWidget(MailDisplay)
+        MiddleLayout.addWidget(MailDisplay2)
+        
+        layout.addLayout(MiddleLayout)
         layout.addLayout(BottomButtonLayout)
 
 
@@ -181,10 +188,15 @@ class MailFort(QMainWindow):
 
         self.EmailInput = QTextEdit()
         self.EmailInput.setFixedHeight(75)
+        self.EmailInput.setTabChangesFocus(True)
 
         self.SubjectInput = QTextEdit()
         self.SubjectInput.setFixedHeight(75)
+        self.SubjectInput.setTabChangesFocus(True)
+        
         self.ContentInput = QTextEdit()
+        self.ContentInput.setTabChangesFocus(True)
+        
 
         self.submitButton = QPushButton("Submit")
         self.submitButton.setFixedSize(50,50)
@@ -238,6 +250,7 @@ class MailFort(QMainWindow):
                 "email_sent": [],
                 "email_received": [],
                 "NewMessageAlert": False
+                # "dateTime": datetime.now()
                 
 
                 }
@@ -251,12 +264,16 @@ class MailFort(QMainWindow):
                 "email_sent": [],
                 "email_received": [],
                 "NewMessageAlert": False
+                # "dateTime": datetime.now()
 
                 }
                 MailCollection.insert_one(user_mail_data)
-
-            CombineEmail = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{Email}"
-            CombineEmailSent = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{UserEmail}"
+            
+            time = datetime.now()
+            dt = time.strftime("%Y-%m-%d %H:%M:%S")
+            
+            CombineEmail = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{Email}\n{dt}"
+            CombineEmailSent = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{UserEmail}\n{dt}"
 
             MailCollection.update_one({"email": Email}, {"$push": {"email_received": CombineEmailSent}})
             MailCollection.update_one({"email": UserEmail}, {"$push": {"email_sent": CombineEmail}})
@@ -266,7 +283,7 @@ class MailFort(QMainWindow):
                 {"email": Email},
                 {"$set": {"NewMessageAlert": True}}
             )
-            QMessageBox.critical(self, "Success", "Email Has Been Sent.")
+            QMessageBox.information(self, "Success", "Email Has Been Sent.")
             seconddailog.hide()
         
         except Exception as err:

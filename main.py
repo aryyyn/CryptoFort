@@ -358,24 +358,28 @@ class ModuleWindow(QMainWindow):
         self.show()
 
         isThereNewMailResult = MailCollection.find_one({"email": Email.text().lower()})
-        isThereNewMail = isThereNewMailResult.get("NewMessageAlert")
+        
+        if (isThereNewMailResult):
+            isThereNewMail = isThereNewMailResult.get("NewMessageAlert")
+            
 
-        if(isThereNewMail):
-            self.CustomMessage("New Message Alert", "You have received new messages.")
-            MailCollection.update_one(
-                {"email": Email.text()},
-                {"$set": {"NewMessageAlert": False}}
+            if(isThereNewMail):
+                
+                self.CustomMessage("New Message Alert", "You have received new messages.")
+                MailCollection.update_one(
+                    {"email": Email.text()},
+                    {"$set": {"NewMessageAlert": False}}
+                )
+            IP = requests.get("https://ipv4.icanhazip.com").text.strip()
+            IP_collection.update_one(
+            {"IP": IP},
+            {
+                "$set": {
+                    "IP_Attempt_Count": 1,
+                    "isBanned": False
+                }
+                }
             )
-        IP = requests.get("https://ipv4.icanhazip.com").text.strip()
-        IP_collection.update_one(
-        {"IP": IP},
-        {
-            "$set": {
-                "IP_Attempt_Count": 1,
-                "isBanned": False
-            }
-            }
-        )
 
 
 
