@@ -2,13 +2,22 @@ import random
 import time
 
 def enhancedEncryption(NormalText, EncryptionCode):
-    Encrypted_text = ""
+    
+    
+
+    encrypted_text = ""
+    reversed_encryption_code = "".join(reversed(EncryptionCode))
+    #salting example ->
+    Salt = "T\$P"
+    salted_password = NormalText + Salt
     #EncryptionCode += EncryptionCode * (len(NormalText) // len(EncryptionCode) + 5)
-    for i in range(len(NormalText)):  
-        ch = NormalText[i]
+    for i in range(len(salted_password)):  
+        ch = salted_password[i]
         Enc = chr(ord(ch) + int(EncryptionCode[i]))
-        Encrypted_text += Enc
-    return Encrypted_text 
+        Enc_rev = chr(ord(ch) + int(reversed_encryption_code[i]))
+        encrypted_text += Enc
+        encrypted_text += Enc_rev
+    return encrypted_text 
 
 
 

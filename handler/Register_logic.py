@@ -134,27 +134,21 @@ def registerLogic(eemail,epassword,erepassword):
             CustomMessage("Error","Password Field Cannot be Empty")
             return "Password Field Empty"
         
+        if len(password) > 20:
+            CustomMessage("Error","Password length too long.")
+            return "Password Length too long"
+        
+        if len(password) < 8:
+            CustomMessage("Error","Password length too short.")
+            return "Password Length too short"
+        
         if (is_strong_password(password) == False):
             CustomMessage("Password Is Not Strong Enough", "Make Sure To Include At Lease One Uppercase and One Digit")
             return "Password Not Strong Enough"
         
-       
-
-        if password == "":
-            # PasswordFieldEmpty = QMessageBox()
-            # PasswordFieldEmpty.setWindowTitle("Error")
-            # PasswordFieldEmpty.setText("Password Field Cannot Be Empty")
-            # button = PasswordFieldEmpty.exec()
-            CustomMessage("Error","Password Field Cannot be Empty")
-            return "Password Field Empty"
         
-        if repassword == "":
-            # RePasswordFieldEmpty = QMessageBox()
-            # RePasswordFieldEmpty.setWindowTitle("Error")
-            # RePasswordFieldEmpty.setText("RePassword Field Cannot Be Empty")
-            # button = RePasswordFieldEmpty.exec()
-            CustomMessage("Error","Password Field Cannot be Empty")
-            return "RePassword Field Empty"
+
+
 
 
 

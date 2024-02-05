@@ -109,7 +109,6 @@ def loginLogic(eemail, epassword):
         CustomMessage("IP Banned","Your IP is been banned due to multiple login attempts.")
         return "IP Banned."
     
-    print(hours_passed)
     if(isIPBanned and hours_passed>1):
         IP_collection.update_one(
         {"IP": IP},
