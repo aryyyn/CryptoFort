@@ -324,10 +324,10 @@ class UpdateAccount(QMainWindow):
 
         submit_button = QPushButton("Submit")
         layout.addWidget(submit_button)
-        submit_button.clicked.connect(lambda: self.changePassword(Email.text(), CurrentPassInput.text(), NewPassInput.text(), ConfirmNewPassInput.text()))
+        submit_button.clicked.connect(lambda: self.changePassword(Email.text(), CurrentPassInput.text(), NewPassInput.text(), ConfirmNewPassInput.text(), dialog))
         dialog.exec()
 
-    def changePassword(self, Email, CurrentPasswordInput, NewPassInput, ConfirmNewPassInput):
+    def changePassword(self, Email, CurrentPasswordInput, NewPassInput, ConfirmNewPassInput, dialog: QDialog):
         client = pymongo.MongoClient("mongodb://localhost:27017/")  
         db = client["CryptoFort"] 
         collection = db["User_Details"]
@@ -356,7 +356,8 @@ class UpdateAccount(QMainWindow):
             if UpdatePassword.modified_count > 0:
                 logs_collection.update_one({"username":Email}, {"$push": {"logs": f"User has changed their password at {datetime.now()}"}})
                 QMessageBox.information(self, "Success!", "Password Has Been Changed Successfully.")
-                sys.exit()
+                dialog.accept()
+                self.hide()
 
             else:
                 logs_collection.update_one({"username":Email}, {"$push": {"logs": f"User has encountered an error while changing their password at {datetime.now()}"}})

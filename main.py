@@ -265,92 +265,98 @@ class ModuleWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout(central_widget)
-        self.setGeometry(100, 100, 400, 300)
-        layout.setSpacing(10)
+        self.setGeometry(100, 100, 600, 500) 
+        layout.setSpacing(20)  
 
-        HeaderLayout = QHBoxLayout()
-        WelcomeUserName = Email.text().split('@')[0]
-        TitleMessage = QLabel(f"CryptoFort || Modules \n Welcome back,  {WelcomeUserName}")
-    
+        # Header Layout
+        header_layout = QHBoxLayout()
+        welcome_user_name = Email.text().split('@')[0]
+        title_message = QLabel(f"<h2>CryptoFort || Modules</h2><p>Welcome back, {welcome_user_name}</p>")
+        title_message.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        account_info = QPushButton("Account Info")
+        update_account = QPushButton("Update Account")
 
-        AccountInfo = QPushButton("Account Info")
-        UpdateAccount = QPushButton("Update Account")
-
-        HeaderLayout.addWidget(AccountInfo, alignment=Qt.AlignmentFlag.AlignLeft)
-        HeaderLayout.addWidget(TitleMessage, alignment=Qt.AlignmentFlag.AlignCenter)
-        HeaderLayout.addWidget(UpdateAccount, alignment=Qt.AlignmentFlag.AlignRight)
+        header_layout.addWidget(account_info)
+        header_layout.addStretch(1)  
+        header_layout.addWidget(title_message)
+        header_layout.addStretch(1)  
+        header_layout.addWidget(update_account)
 
        
-        
-        Module1 = QPushButton("Encrypto")
-        Module1.setFixedSize(400,70)
-        Module2 = QPushButton("FManager")
-        Module2.setFixedSize(400,70)
-        Module3 = QPushButton("IPC")
-        Module3.setFixedSize(400,70)
-        Module4 = QPushButton("MailFort")
-        Module4.setFixedSize(400,70)
+        module1 = QPushButton("Encrypto")
+        module1.setFixedSize(400, 70)
+        module2 = QPushButton("FManager")
+        module2.setFixedSize(400, 70)
+        module3 = QPushButton("IPC")
+        module3.setFixedSize(400, 70)
+        module4 = QPushButton("MailFort")
+        module4.setFixedSize(400, 70)
 
         widget1 = QWidget()
-        widget1.setFixedSize(300, 100)
+        widget1.setFixedSize(400, 100)
         widget1.setLayout(QVBoxLayout())
-        widget1.layout().addWidget(Module1)
+        widget1.layout().addWidget(module1)
 
         widget2 = QWidget()
-        widget2.setFixedSize(300, 100)
+        widget2.setFixedSize(400, 100)
         widget2.setLayout(QVBoxLayout())
-        widget2.layout().addWidget(Module2)
+        widget2.layout().addWidget(module2)
 
         widget3 = QWidget()
-        widget3.setFixedSize(300, 100)
+        widget3.setFixedSize(400, 100)
         widget3.setLayout(QVBoxLayout())
-        widget3.layout().addWidget(Module3)
-        
+        widget3.layout().addWidget(module3)
 
         widget4 = QWidget()
-        widget4.setFixedSize(300, 100)
+        widget4.setFixedSize(400, 100)
         widget4.setLayout(QVBoxLayout())
-        widget4.layout().addWidget(Module4)
+        widget4.layout().addWidget(module4)
 
+      
+        bottom_layout = QHBoxLayout()
 
-        BottomLayout = QHBoxLayout()
+        exit_button = QPushButton("Exit")
+        exit_button.setFixedSize(80, 30)
+      
+        bottom_layout.addWidget(exit_button)
 
-        ExitButton = QPushButton("Exit")
-        ExitButton.setFixedSize(25,25)
-        BottomLayout.addWidget(ExitButton, alignment=Qt.AlignmentFlag.AlignLeft)
+        bottom_layout.addStretch(1)  
 
-        LogoutButton = QPushButton("Logout")
-        LogoutButton.setFixedSize(25,25)
-        BottomLayout.addWidget(LogoutButton, alignment=Qt.AlignmentFlag.AlignRight)
+        logout_button = QPushButton("Logout")
+        logout_button.setFixedSize(80, 30)
+        bottom_layout.addWidget(logout_button)
 
-
-
-
-        layout.addLayout(HeaderLayout)
+    
+        layout.addLayout(header_layout)
         layout.addWidget(widget1, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(widget2, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(widget3, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(widget4, alignment=Qt.AlignmentFlag.AlignCenter)
-        layout.addLayout(BottomLayout)
+        layout.addLayout(bottom_layout)
 
-        AccountInfo.clicked.connect(lambda: self.display_account_info_methods(Email))
-        UpdateAccount.clicked.connect(lambda: self.display_update_account_methods(Email))
-        Module1.clicked.connect(lambda: self.display_Encrypto_Module(Email.text()))
-        Module2.clicked.connect(lambda: self.display_FManager_Module(Email.text()))
-        Module3.clicked.connect(lambda: self.display_IPC_Module(Email.text()))
-        Module4.clicked.connect(lambda: self.display_MailFort_Module(Email.text()))
-        ExitButton.clicked.connect(self.handleExit)
-        LogoutButton.clicked.connect(self.handleLogout)
 
-        module1shortcut = QShortcut(QKeySequence("Ctrl+1"), self)
-        module1shortcut.activated.connect(Module1.click)
 
-        module2shortcut = QShortcut(QKeySequence("Ctrl+2"), self)
-        module2shortcut.activated.connect(Module2.click)
+        account_info.clicked.connect(lambda: self.display_account_info_methods(Email))
+        update_account.clicked.connect(lambda: self.display_update_account_methods(Email))
+        module1.clicked.connect(lambda: self.display_Encrypto_Module(Email.text()))
+        module2.clicked.connect(lambda: self.display_FManager_Module(Email.text()))
+        module3.clicked.connect(lambda: self.display_IPC_Module(Email.text()))
+        module4.clicked.connect(lambda: self.display_MailFort_Module(Email.text()))
+        exit_button.clicked.connect(self.handleExit)
+        logout_button.clicked.connect(self.handleLogout)
 
-        module3shortcut = QShortcut(QKeySequence("Ctrl+3"), self)
-        module3shortcut.activated.connect(Module3.click)
+        module1_shortcut = QShortcut(QKeySequence("Ctrl+1"), self)
+        module1_shortcut.activated.connect(module1.click)
+
+        module2_shortcut = QShortcut(QKeySequence("Ctrl+2"), self)
+        module2_shortcut.activated.connect(module2.click)
+
+        module3_shortcut = QShortcut(QKeySequence("Ctrl+3"), self)
+        module3_shortcut.activated.connect(module3.click)
+
+        module4_shortcut = QShortcut(QKeySequence("Ctrl+4"), self)
+        module4_shortcut.activated.connect(module4.click)
         
 
 

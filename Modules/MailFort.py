@@ -17,6 +17,7 @@ import sys
 import pymongo
 import json,requests
 from datetime import datetime
+from Algorithm.ceaser_cipher import simpleEcnryption, SimpleDecription
 
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
@@ -105,6 +106,7 @@ class MailFort(QMainWindow):
     # CombineEmail = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{Email}"
             
             for mail_logs in SentLogs:
+                mail_logs = SimpleDecription(mail_logs)
                 finalsubjectSent = mail_logs.split('CryptoFortMailModule')[0]
                 finalcontentandEmailSent = mail_logs.split('CryptoFortMailModule')[1]
                 finalcontentSent = finalcontentandEmailSent.split('CryptoFortMailSent')[0]
@@ -114,7 +116,7 @@ class MailFort(QMainWindow):
                 MailDisplay.append(finalmailSent)
 
             for mail_Received_logs in ReceivedLogs:
-
+                mail_Received_logs = SimpleDecription(mail_Received_logs)
                 finalsubjectReceived = mail_Received_logs.split('CryptoFortMailModule')[0]
                 finalcontentandEmailReceived = mail_Received_logs.split('CryptoFortMailModule')[1]
                 finalcontentReceived = finalcontentandEmailReceived.split('CryptoFortMailSent')[0]
@@ -152,11 +154,7 @@ class MailFort(QMainWindow):
         CreateMail.clicked.connect(lambda: self.MailCreate(Email))
         Close.clicked.connect(lambda: self.closeButton())
         Refresh.clicked.connect(lambda: self.handleRefresh())
-
-
-
-
-        
+  
         # user_info = collection.find_one({"email": Email})
         
         # RegisterdIP = user_info["Registration_IP"]
@@ -165,6 +163,8 @@ class MailFort(QMainWindow):
         # layout.addWidget(Registered_IPLabel)
 
         self.show()
+
+        
 
     def closeButton(self):
         self.hide()
@@ -275,8 +275,12 @@ class MailFort(QMainWindow):
             CombineEmail = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{Email}\n{dt}"
             CombineEmailSent = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{UserEmail}\n{dt}"
 
-            MailCollection.update_one({"email": Email}, {"$push": {"email_received": CombineEmailSent}})
-            MailCollection.update_one({"email": UserEmail}, {"$push": {"email_sent": CombineEmail}})
+            EncryptedEmail = simpleEcnryption(CombineEmail)
+            EncryptedEmailSent = simpleEcnryption(CombineEmailSent)
+
+
+            MailCollection.update_one({"email": Email}, {"$push": {"email_received": EncryptedEmailSent}})
+            MailCollection.update_one({"email": UserEmail}, {"$push": {"email_sent": EncryptedEmail}})
 
 
             MailCollection.update_one(
