@@ -177,7 +177,7 @@ class MailFort(QMainWindow):
     def MailCreate(self, Email):
 
         dialog = QDialog(self)
-        dialog.setWindowTitle("Mail Module")
+        dialog.setWindowTitle("Create Your Mail")
         dialog.setFixedSize(550,600)
 
         layout = QVBoxLayout(dialog)

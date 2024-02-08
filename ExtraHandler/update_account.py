@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon, QFont, QPixmap, QMovie, QRegion
 from PyQt6.QtCore import Qt
-import pymongo,time,sys
+import pymongo,time,sys,re
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
 import time,pyotp,qrcode
 from dotenv import load_dotenv
@@ -119,6 +119,10 @@ class UpdateAccount(QMainWindow):
         Disable2fa.clicked.connect(lambda:self.disable2faUI(topt,Email.text()))
 
         self.show()
+
+    def is_strong_password(self,password):
+        pattern = r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$'
+        return bool(re.match(pattern, password))
 
     def twoFactUI(self,topt, Email):
 
@@ -347,6 +351,18 @@ class UpdateAccount(QMainWindow):
             logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users passwords do not match while changing their password at {datetime.now()}"}})
             QMessageBox.critical(self, "Error!", "You Have Entered An Invalid Password")
             return "Invalid Password Entered"
+        
+        if len(Password) > 20:
+            QMessageBox.critical(self,"Error","Password length too long.")
+            return "Password Length too long"
+        
+        if len(Password) < 8:
+            QMessageBox.critical(self,"Error","Password length too short.")
+            return "Password Length too short"
+        
+        if (self.is_strong_password(Password) == False):
+            QMessageBox.critical(self,"Password Is Not Strong Enough", "Make Sure To Include At Lease One Uppercase and One Digit")
+            return "Password Not Strong Enough"
         
         if (Password == CurrentPasswordInput):
             NewPassInput = enhancedEncryption(NewPassInput, Encryptioncode)

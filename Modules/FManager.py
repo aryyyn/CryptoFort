@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
     QMessageBox
     
 )
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon,QPixmap
 from PyQt6.QtCore import Qt
 import sys,pymongo, os, time
 from gridfs import GridFS
@@ -139,7 +139,11 @@ class FManagerWindow(QMainWindow):
         password_input = QLineEdit()
         password_input.setEchoMode(QLineEdit.EchoMode.Password)
         password_input.setFixedWidth(200)
-        ShowPasswordButton = QPushButton("SHOW")
+
+        icon_path = 'Logo/eye.png'
+        hide = QPixmap(icon_path)
+
+        ShowPasswordButton = QPushButton(QIcon(hide),"")
         EnterPasswordLabel = QLabel("Enter File Password: ")
         HorizontalLayout.addWidget(EnterPasswordLabel)
         HorizontalLayout.addWidget(password_input)
