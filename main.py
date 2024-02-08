@@ -631,6 +631,7 @@ class LoginWindow(QMainWindow):
                 self.Admin = AdminWindow(self.loginInput)
                 self.Admin.show()
             else:
+                
                 self.hide()
                 self.MM = ModuleWindow(self.loginInput)
                 self.MM.show()

@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import (
     QInputDialog,
     QMessageBox,
 )
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QFont,QPainter, QPen,QPixmap,QIcon
 from PyQt6.QtCore import Qt
 import pymongo,time,sys,random
 from Algorithm.ceasers_enhanced_algorithm import enhancedEncryption
@@ -88,11 +88,18 @@ class ForgetPassword(QMainWindow):
         CodeLayout.addWidget(EnterCodeLabel)
         CodeLayout.addWidget(EnterCodeInput)
 
+
         PasswordLayout = QHBoxLayout()
         EnterPassowrdLabel = QLabel("Enter New Password: ")
         EnterPasswordInput = QLineEdit()
-        ShowPasswordButton = QPushButton("SHOW")
+
+        icon_path = 'Logo/eye.png'
+        hide = QPixmap(icon_path)
+
+        ShowPasswordButton = QPushButton(QIcon(hide),"")
         ShowPasswordButton.setMaximumSize(25,25)
+
+        
         PasswordLayout.addWidget(EnterPassowrdLabel)
         PasswordLayout.addWidget(EnterPasswordInput)
         PasswordLayout.addWidget(ShowPasswordButton, alignment=Qt.AlignmentFlag.AlignCenter)

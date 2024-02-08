@@ -20,6 +20,7 @@ import time,pyotp,qrcode
 from dotenv import load_dotenv
 import os,requests
 from datetime import datetime
+from handler.send_email import password_changed
 load_dotenv()
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
@@ -356,6 +357,8 @@ class UpdateAccount(QMainWindow):
             if UpdatePassword.modified_count > 0:
                 logs_collection.update_one({"username":Email}, {"$push": {"logs": f"User has changed their password at {datetime.now()}"}})
                 QMessageBox.information(self, "Success!", "Password Has Been Changed Successfully.")
+                msg = "The Password Of Your Account Has Been Changed."
+                password_changed(Email,msg)
                 dialog.accept()
                 self.hide()
 
