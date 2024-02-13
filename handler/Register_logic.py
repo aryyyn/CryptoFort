@@ -134,9 +134,9 @@ def registerLogic(eemail,epassword,erepassword):
             CustomMessage("Error","Password Field Cannot be Empty")
             return "Password Field Empty"
         
-        if len(password) > 20:
-            CustomMessage("Error","Password length too long.")
-            return "Password Length too long"
+        # if len(password) > 20:
+        #     CustomMessage("Error","Password length too long.")
+        #     return "Password Length too long"
         
         if len(password) < 8:
             CustomMessage("Error","Password length too short.")
