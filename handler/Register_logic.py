@@ -102,17 +102,18 @@ def registerLogic(eemail,epassword,erepassword):
 
         IP = get_ip_address()
         isBannedResult = IP_collection.find_one({"IP": IP})
-        isIPBanned = isBannedResult.get("isBanned")
-        IPTime = isBannedResult.get("Time")
+        if isBannedResult:
+            isIPBanned = isBannedResult.get("isBanned")
+            IPTime = isBannedResult.get("Time")
 
-        specified_time = datetime.strptime(IPTime, "%Y-%m-%d %H:%M:%S.%f")
-        current_time = datetime.now()
-        time_difference = specified_time - current_time
-        hours_passed = int(time_difference.total_seconds() / 3600)
+            specified_time = datetime.strptime(IPTime, "%Y-%m-%d %H:%M:%S.%f")
+            current_time = datetime.now()
+            time_difference = specified_time - current_time
+            hours_passed = int(time_difference.total_seconds() / 3600)
 
-        if(isIPBanned and hours_passed<1):
-            CustomMessage("IP Banned","Your IP is banned.")
-            return "IP Banned."
+            if(isIPBanned and hours_passed<1):
+                CustomMessage("IP Banned","Your IP is banned.")
+                return "IP Banned."
 
         
 
@@ -230,8 +231,9 @@ def registerLogic(eemail,epassword,erepassword):
 
         
     except Exception as err:
-        logs_collection.update_one({"username": email}, {"$push": {"logs": f"Internal Server Error at {datetime.now()}"}})
-        internal_error(err)
+        print(err)
+        # logs_collection.update_one({"username": email}, {"$push": {"logs": f"Internal Server Error at {datetime.now()}"}})
+        # internal_error(err)
         return err
     
     

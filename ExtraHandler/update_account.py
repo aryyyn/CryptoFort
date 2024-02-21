@@ -333,56 +333,66 @@ class UpdateAccount(QMainWindow):
         dialog.exec()
 
     def changePassword(self, Email, CurrentPasswordInput, NewPassInput, ConfirmNewPassInput, dialog: QDialog):
-        client = pymongo.MongoClient("mongodb://localhost:27017/")  
-        db = client["CryptoFort"] 
-        collection = db["User_Details"]
+        try:
+            client = pymongo.MongoClient("mongodb://localhost:27017/")  
+            db = client["CryptoFort"] 
+            collection = db["User_Details"]
 
-        result = collection.find_one({"email": Email})  
-        Password = result.get("password")
-        Encryptioncode = result.get("Encryption_code")
-        CurrentPasswordInput = enhancedEncryption(CurrentPasswordInput, Encryptioncode)
+            result = collection.find_one({"email": Email})  
+            Password = result.get("password")
+            Encryptioncode = result.get("Encryption_code")
+            CurrentPasswordInput = enhancedEncryption(CurrentPasswordInput, Encryptioncode)
+            NewPassInputEncrypted = enhancedEncryption(NewPassInput, Encryptioncode)
 
-        if (NewPassInput!=ConfirmNewPassInput):
-            logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users passwords do not match while changing their password at {datetime.now()}"}})
-            QMessageBox.critical(self, "Error!", "Passwords Do Not Match.")
-            return "Passwords Don't Match"
-        
-        if (Password!=CurrentPasswordInput):
-            logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users passwords do not match while changing their password at {datetime.now()}"}})
-            QMessageBox.critical(self, "Error!", "You Have Entered An Invalid Password")
-            return "Invalid Password Entered"
-        
-        if len(Password) > 20:
-            QMessageBox.critical(self,"Error","Password length too long.")
-            return "Password Length too long"
-        
-        if len(Password) < 8:
-            QMessageBox.critical(self,"Error","Password length too short.")
-            return "Password Length too short"
-        
-        if (self.is_strong_password(Password) == False):
-            QMessageBox.critical(self,"Password Is Not Strong Enough", "Make Sure To Include At Lease One Uppercase and One Digit")
-            return "Password Not Strong Enough"
-        
-        if (Password == CurrentPasswordInput):
-            NewPassInput = enhancedEncryption(NewPassInput, Encryptioncode)
-            UpdatePassword = collection.update_one(
-                {"email": Email},
-                {"$set": {"password": NewPassInput}}
-            )
-            if UpdatePassword.modified_count > 0:
-                logs_collection.update_one({"username":Email}, {"$push": {"logs": f"User has changed their password at {datetime.now()}"}})
-                QMessageBox.information(self, "Success!", "Password Has Been Changed Successfully.")
-                msg = "The Password Of Your Account Has Been Changed."
-                password_changed(Email,msg)
-                dialog.accept()
-                self.hide()
 
-            else:
-                logs_collection.update_one({"username":Email}, {"$push": {"logs": f"User has encountered an error while changing their password at {datetime.now()}"}})
-                QMessageBox.information(self, "Error!", "An Internal Error Has Occurred.\nPlease Try Again Later.")
-                return "Internal Error Has Occurred"
-                
+
+
+            if (NewPassInput!=ConfirmNewPassInput):
+                logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users passwords do not match while changing their password at {datetime.now()}"}})
+                QMessageBox.critical(self, "Error!", "Passwords Do Not Match.")
+                return "Passwords Don't Match"
+            
+            if (Password!=CurrentPasswordInput):
+                logs_collection.update_one({"username":Email}, {"$push": {"logs": f"Users passwords do not match while changing their password at {datetime.now()}"}})
+                QMessageBox.critical(self, "Error!", "You Have Entered An Invalid Password")
+                return "Invalid Password Entered"
+
+            if (CurrentPasswordInput == NewPassInputEncrypted):
+                logs_collection.update_one({"username":Email}, {"$push": {"logs": f"User enters same password at {datetime.now()}"}})
+                QMessageBox.critical(self, "Error!", "New Password can not be the same as the old password")
+                return "Password Error"
+            
+
+            # if len(Password) > 20:
+            #     QMessageBox.critical(self,"Error","Password length too long.")
+            #     return "Password Length too long"
+            
+            if len(CurrentPasswordInput) < 8:
+                QMessageBox.critical(self,"Error","Password length too short.")
+                return "Password Length too short"
+            
+            # if (self.is_strong_password(CurrentPasswordInput) == False):
+            #     QMessageBox.critical(self,"Password Is Not Strong Enough", "Make Sure To Include At Lease One Uppercase and One Digit")
+            #     return "Password Not Strong Enough"
+            
+            if (Password == CurrentPasswordInput):
+                NewPassInput = enhancedEncryption(NewPassInput, Encryptioncode)
+                UpdatePassword = collection.update_one(
+                    {"email": Email},
+                    {"$set": {"password": NewPassInput}}
+                )
+                if UpdatePassword.modified_count > 0:
+                    logs_collection.update_one({"username":Email}, {"$push": {"logs": f"User has changed their password at {datetime.now()}"}})
+                    QMessageBox.information(self, "Success!", "Password Has Been Changed Successfully.")
+                    msg = "The Password Of Your Account Has Been Changed."
+                    password_changed(Email,msg)
+                    dialog.accept()
+                    self.hide()
+        
+        except Exception as err:
+            print(err)
+
+
 
                 
 

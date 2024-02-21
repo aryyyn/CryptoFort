@@ -650,7 +650,6 @@ def resendCode(email):
             QMessageBox.information(dialog, "Code Reset Successful", "Please Check Your Email For The New Code")
 
     except Exception as err:
-        print(err)
         dialog = QInputDialog()
         dialog.setStyleSheet("""
             * {

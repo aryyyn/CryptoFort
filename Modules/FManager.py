@@ -240,7 +240,7 @@ class FManagerWindow(QMainWindow):
             if (result.deleted_count > 0):
                 FileInfoLabel.setText("No File Uploaded")
                 logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User deletes the uploaded file at {datetime.now()}"}})
-                QMessageBox.critical(self, "Success", "File has been deleted successfully!")
+                QMessageBox.information(self, "Success", "File has been deleted successfully!")
 
             else:
                 logs_collection.update_one({"username": Email}, {"$push": {"logs": f"internal server error at {datetime.now()}"}})
