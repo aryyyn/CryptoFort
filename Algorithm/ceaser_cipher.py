@@ -1,6 +1,6 @@
 import random,time
 
-def simpleEcnryption(NormalText):
+def simpleEncryption(NormalText):
     Encrypted_text = ""
     for i in range(len(NormalText)):
         ch = NormalText[i]
@@ -9,7 +9,7 @@ def simpleEcnryption(NormalText):
     return Encrypted_text
         
 
-def SimpleDecription(EncryptedText):
+def simpleDecryption(EncryptedText):
     DecryptedText = ""
     for i in range(len(EncryptedText)):
         char = EncryptedText[i]

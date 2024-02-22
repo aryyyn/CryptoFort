@@ -367,13 +367,13 @@ class UpdateAccount(QMainWindow):
             #     QMessageBox.critical(self,"Error","Password length too long.")
             #     return "Password Length too long"
             
-            if len(CurrentPasswordInput) < 8:
+            if len(NewPassInput) < 8:
                 QMessageBox.critical(self,"Error","Password length too short.")
                 return "Password Length too short"
             
-            # if (self.is_strong_password(CurrentPasswordInput) == False):
-            #     QMessageBox.critical(self,"Password Is Not Strong Enough", "Make Sure To Include At Lease One Uppercase and One Digit")
-            #     return "Password Not Strong Enough"
+            if (self.is_strong_password(NewPassInput) == False):
+                QMessageBox.critical(self,"Password Is Not Strong Enough", "Make Sure To Include At Lease One Uppercase and One Digit")
+                return "Password Not Strong Enough"
             
             if (Password == CurrentPasswordInput):
                 NewPassInput = enhancedEncryption(NewPassInput, Encryptioncode)

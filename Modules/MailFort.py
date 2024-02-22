@@ -17,7 +17,7 @@ import sys
 import pymongo
 import json,requests
 from datetime import datetime
-from Algorithm.ceaser_cipher import simpleEcnryption, SimpleDecription
+from Algorithm.ceaser_cipher import simpleEncryption, simpleDecryption
 
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
@@ -88,13 +88,24 @@ class MailFort(QMainWindow):
         CreateMail = QPushButton("Mail")
         CreateMail.setFixedSize(50,50)
 
+        
+        SentMail = QVBoxLayout()
+        SentMailLabel = QLabel("Sent")
         MailDisplay = QTextEdit()
         MailDisplay.setBaseSize(150,500)
         MailDisplay.setReadOnly(True)
+        SentMail.addWidget(SentMailLabel, alignment=Qt.AlignmentFlag.AlignCenter)
+        SentMail.addWidget(MailDisplay)
 
+
+        ReceivedMail = QVBoxLayout()
+        ReceivedMailLabel = QLabel("Inbox")
         MailDisplay2 = QTextEdit()
         MailDisplay2.setBaseSize(150,500)
         MailDisplay2.setReadOnly(True)
+        ReceivedMail.addWidget(ReceivedMailLabel, alignment=Qt.AlignmentFlag.AlignCenter)
+        ReceivedMail.addWidget(MailDisplay2)
+
 
         Mail_logs = MailCollection.find_one({"email": Email})
         if(Mail_logs):
@@ -106,7 +117,7 @@ class MailFort(QMainWindow):
     # CombineEmail = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{Email}"
             
             for mail_logs in SentLogs:
-                mail_logs = SimpleDecription(mail_logs)
+                mail_logs = simpleDecryption(mail_logs)
                 finalsubjectSent = mail_logs.split('CryptoFortMailModule')[0]
                 finalcontentandEmailSent = mail_logs.split('CryptoFortMailModule')[1]
                 finalcontentSent = finalcontentandEmailSent.split('CryptoFortMailSent')[0]
@@ -116,7 +127,7 @@ class MailFort(QMainWindow):
                 MailDisplay.append(finalmailSent)
 
             for mail_Received_logs in ReceivedLogs:
-                mail_Received_logs = SimpleDecription(mail_Received_logs)
+                mail_Received_logs = simpleDecryption(mail_Received_logs)
                 finalsubjectReceived = mail_Received_logs.split('CryptoFortMailModule')[0]
                 finalcontentandEmailReceived = mail_Received_logs.split('CryptoFortMailModule')[1]
                 finalcontentReceived = finalcontentandEmailReceived.split('CryptoFortMailSent')[0]
@@ -144,8 +155,8 @@ class MailFort(QMainWindow):
         
 
         MiddleLayout = QHBoxLayout()
-        MiddleLayout.addWidget(MailDisplay)
-        MiddleLayout.addWidget(MailDisplay2)
+        MiddleLayout.addLayout(ReceivedMail)
+        MiddleLayout.addLayout(SentMail)
         
         layout.addLayout(MiddleLayout)
         layout.addLayout(BottomButtonLayout)
@@ -153,7 +164,7 @@ class MailFort(QMainWindow):
 
         CreateMail.clicked.connect(lambda: self.MailCreate(Email))
         Close.clicked.connect(lambda: self.closeButton())
-        Refresh.clicked.connect(lambda: self.handleRefresh())
+        Refresh.clicked.connect(lambda: self.handleRefresh(Email))
   
         # user_info = collection.find_one({"email": Email})
         
@@ -169,8 +180,8 @@ class MailFort(QMainWindow):
     def closeButton(self):
         self.hide()
 
-    def handleRefresh(self):
-        self.repaint()
+    def handleRefresh(self,Email):
+        self.init_ui(Email)
         
 
 
@@ -275,8 +286,8 @@ class MailFort(QMainWindow):
             CombineEmail = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{Email}\n{dt}"
             CombineEmailSent = f"{subject}CryptoFortMailModule{content}CryptoFortMailSent{UserEmail}\n{dt}"
 
-            EncryptedEmail = simpleEcnryption(CombineEmail)
-            EncryptedEmailSent = simpleEcnryption(CombineEmailSent)
+            EncryptedEmail = simpleEncryption(CombineEmail)
+            EncryptedEmailSent = simpleEncryption(CombineEmailSent)
 
 
             MailCollection.update_one({"email": Email}, {"$push": {"email_received": EncryptedEmailSent}})

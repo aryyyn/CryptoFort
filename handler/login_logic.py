@@ -395,7 +395,7 @@ def loginLogic(eemail, epassword):
                     
                     IP_collection.insert_one(IP_Data)
                     logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
-                    CustomMessage("Error","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
+                    CustomMessage("Error","Wrong Password\nPlease Re-Check Your Password And Try Again.")
 
 
                 else:
@@ -428,7 +428,7 @@ def loginLogic(eemail, epassword):
                             return "Wrong Password"
 
 
-                        if IP_Attempt_Count>=10:
+                        if IP_Attempt_Count>=20:
                             if not isBanned:
                                 IP_collection.update_one(
                                 {"IP": IP},
@@ -452,9 +452,9 @@ def loginLogic(eemail, epassword):
                             {"$inc": {"IP_Attempt_Count": 1}})
  
 
-                        if IP_Attempt_Count<10 and not isBanned:
+                        if IP_Attempt_Count<20 and not isBanned:
                             logs_collection.update_one({"username": email}, {"$push": {"logs": f"User enters an invalid password at {datetime.now()}"}})
-                            CustomMessage("Error","Wrong Passowrd\nPlease Re-Check Your Password And Try Again.")
+                            CustomMessage("Error","Wrong Password\nPlease Re-Check Your Password And Try Again.")
                             return "Wrong Password"
 
                         # if isBanned and hours_passed > 1:

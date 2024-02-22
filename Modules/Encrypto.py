@@ -14,7 +14,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 import sys,pymongo
 from datetime import datetime
-from Algorithm.ceaser_cipher import simpleEcnryption, SimpleDecription
+from Algorithm.ceaser_cipher import simpleEncryption,simpleDecryption
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
 db = client["CryptoFort"] 
@@ -115,12 +115,12 @@ class EncryptoWindow(QMainWindow):
 
     def EncryptText(self, Email, TextToEncrypt, OutputBox : QTextEdit):
         logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User encrypts a text from the Encrypto Module at {datetime.now()}"}})
-        EncryptedText = simpleEcnryption(TextToEncrypt)
+        EncryptedText = simpleEncryption(TextToEncrypt)
         OutputBox.setText(EncryptedText)
 
     def DecryptText(self, Email,TextToDecrypt, OutputBox: QTextEdit):
         logs_collection.update_one({"username": Email}, {"$push": {"logs": f"User decrypts a text from the Encrypto Module at {datetime.now()}"}})
-        DecryptedText = SimpleDecription(TextToDecrypt)
+        DecryptedText = simpleDecryption(TextToDecrypt)
         OutputBox.setText(DecryptedText)
         
 
